@@ -1,14 +1,14 @@
 import { ServiceCategory, Provider } from './types';
 
 export const services: ServiceCategory[] = [
-  { id: 'plumbing', name: 'Plumbing', iconName: 'Wrench', subtitle: 'Leaks, taps and pipe repairs', image: 'https://images.unsplash.com/photo-1581141849291-1125c7b692b5?w=600&auto=format&fit=crop&q=60' },
+  { id: 'plumbing', name: 'Plumbing', iconName: 'Wrench', subtitle: 'Leaks, taps and pipe repairs', image: '/plumbing-repair-service_181624-27146.webp' },
   { id: 'electrical', name: 'Electrical', iconName: 'Zap', subtitle: 'Wiring, fixtures and safety checks', image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&auto=format&fit=crop&q=60' },
   { id: 'cleaning', name: 'Home Cleaning', iconName: 'Sparkles', subtitle: 'Regular and deep home cleaning', image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&auto=format&fit=crop&q=60' },
-  { id: 'vehicle', name: 'Vehicle Repair', iconName: 'Car', subtitle: 'Car and bike service near you', image: 'https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=600&auto=format&fit=crop&q=60' },
-  { id: 'appliance', name: 'Appliance Repair', iconName: 'AirVent', subtitle: 'AC, refrigerator and washer care', image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&auto=format&fit=crop&q=60' },
+  { id: 'vehicle', name: 'Vehicle Repair', iconName: 'Car', subtitle: 'Car and bike service near you', image: '/auto-mechanic-repairing-car-engine-auto-repair-shop-car-service-maintenance-concept_981948-16160.webp' },
+  { id: 'appliance', name: 'Appliance Repair', iconName: 'AirVent', subtitle: 'AC, refrigerator and washer care', image: '/home-appliance-repair.webp' },
   { id: 'beauty', name: 'Beauty Services', iconName: 'Scissors', subtitle: 'Salon services in your home', image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&auto=format&fit=crop&q=60' },
-  { id: 'moving', name: 'Moving Services', iconName: 'Package', subtitle: 'Careful packing and local moves', image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=60' },
-  { id: 'emergency', name: 'Emergency Services', iconName: 'Siren', subtitle: 'Fast help when you need it', image: 'https://images.unsplash.com/photo-1585832770485-e68a5dbfa5cd?w=600&auto=format&fit=crop&q=60' }
+  { id: 'moving', name: 'Moving Services', iconName: 'Package', subtitle: 'Careful packing and local moves', image: '/Moving Services-img.webp' },
+  { id: 'emergency', name: 'Emergency Services', iconName: 'Siren', subtitle: 'Fast help when you need it', image: '/Emergency Services-img.webp' }
 ];
 
 export const providers: Provider[] = [

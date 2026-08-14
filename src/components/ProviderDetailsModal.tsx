@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Star, Check } from 'lucide-react';
 import { services } from '../data';
@@ -27,9 +28,9 @@ export default function ProviderDetailsModal({ provider, isOpen, onClose }: Prov
   const categoryName = service.name;
   const basePrice = provider.price.split('/')[0];
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-0">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6 sm:px-0">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}

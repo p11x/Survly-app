@@ -66,7 +66,7 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
       <ParticleBackground />
       
       {/* Desktop Sidebar */}
-      <aside className={`hidden md:flex flex-col relative border-r border-slate-800 bg-slate-950 backdrop-blur-xl transition-all duration-300 ease-in-out z-30 ${isSidebarMinimized ? 'w-[88px]' : 'w-[280px]'}`}>
+      <aside className={`hidden md:flex flex-col relative border-r border-slate-800 bg-slate-950 backdrop-blur-xl transition-all duration-300 ease-in-out z-50 ${isSidebarMinimized ? 'w-[88px]' : 'w-[280px]'}`}>
         
         {/* Floating Toggle Button */}
         <button 
@@ -100,6 +100,9 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
             </div>
           )}
           <SidebarItem icon={Home} label="Home" active={activeTab === 'home'} onClick={() => setActiveTab('home')} minimized={isSidebarMinimized} />
+          <SidebarItem icon={Sparkles} label="Home services" active={activeTab === 'home_services'} onClick={() => setActiveTab('home_services')} minimized={isSidebarMinimized} />
+          <SidebarItem icon={Car} label="Vehicle care" active={activeTab === 'vehicle_care'} onClick={() => setActiveTab('vehicle_care')} minimized={isSidebarMinimized} />
+          <SidebarItem icon={Scissors} label="Self care" active={activeTab === 'self_care'} onClick={() => setActiveTab('self_care')} minimized={isSidebarMinimized} />
           <SidebarItem icon={Calendar} label="Bookings" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} minimized={isSidebarMinimized} />
           <SidebarItem icon={MessageSquare} label="Messages" active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} minimized={isSidebarMinimized} />
           <SidebarItem icon={FileText} label="Requirements" active={activeTab === 'req'} onClick={() => setActiveTab('req')} minimized={isSidebarMinimized} />
@@ -167,6 +170,9 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
                   <ProviderDashboardView />
                 )
               )}
+              {activeTab === 'home_services' && <FilteredProvidersView categoryIds={['cleaning', 'plumbing', 'electrical', 'appliance']} title="Home services" />}
+              {activeTab === 'vehicle_care' && <FilteredProvidersView categoryIds={['vehicle']} title="Vehicle care" />}
+              {activeTab === 'self_care' && <FilteredProvidersView categoryIds={['beauty']} title="Self care" />}
               {activeTab === 'bookings' && <BookingsView />}
               {activeTab === 'messages' && <MessagesView />}
               {activeTab === 'req' && <RequirementsView />}
@@ -187,12 +193,17 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
       </main>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-200 p-4 pb-safe flex justify-around z-50">
-        <MobileNavItem icon={Home} label="Home" active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
-        <MobileNavItem icon={Calendar} label="Bookings" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} />
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-200 p-3 pb-safe z-50">
+        <div className="flex overflow-x-auto hide-scrollbar gap-6 px-2">
+          <MobileNavItem icon={Home} label="Home" active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
+          <MobileNavItem icon={Sparkles} label="Home Care" active={activeTab === 'home_services'} onClick={() => setActiveTab('home_services')} />
+          <MobileNavItem icon={Car} label="Vehicle" active={activeTab === 'vehicle_care'} onClick={() => setActiveTab('vehicle_care')} />
+          <MobileNavItem icon={Scissors} label="Self Care" active={activeTab === 'self_care'} onClick={() => setActiveTab('self_care')} />
+          <MobileNavItem icon={Calendar} label="Bookings" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} />
         <MobileNavItem icon={MessageSquare} label="Messages" active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} />
         <MobileNavItem icon={FileText} label="Requests" active={activeTab === 'req'} onClick={() => setActiveTab('req')} />
         <MobileNavItem icon={User} label="Profile" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
+        </div>
       </nav>
     </div>
   );
@@ -229,7 +240,7 @@ function SidebarItem({ icon: Icon, label, active, onClick, minimized }: any) {
 
 function MobileNavItem({ icon: Icon, label, active, onClick }: any) {
   return (
-    <button onClick={onClick} className="flex flex-col items-center gap-1">
+    <button onClick={onClick} className="flex flex-col items-center gap-1 shrink-0 min-w-[64px]">
       <div className={`p-2 rounded-full transition-all ${active ? 'bg-indigo-50 text-indigo-600' : 'text-slate-500'}`}>
          <Icon className="w-6 h-6" />
       </div>
@@ -479,6 +490,8 @@ function UserDashboardView({ activeCategory, setActiveCategory, searchQuery, set
         </div>
       </motion.div>
 
+
+
       <ProviderDetailsModal 
         provider={selectedProvider} 
         isOpen={!!selectedProvider} 
@@ -580,15 +593,13 @@ function ProfileView({ role, onLogout }: any) {
         try {
           const userRef = ref(db, `users/${auth.currentUser.uid}`);
           const snapshot = await get(userRef);
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            setProfile({
-              name: data.name || auth.currentUser.displayName || '',
-              email: data.email || auth.currentUser.email || '',
-              phone: data.phone || auth.currentUser.phoneNumber || '',
-              location: data.location || 'Mumbai, MH'
-            });
-          }
+          const data = snapshot.exists() ? snapshot.val() : {};
+          setProfile({
+            name: data.name || auth.currentUser.displayName || '',
+            email: data.email || auth.currentUser.email || '',
+            phone: data.phone || auth.currentUser.phoneNumber || '',
+            location: data.location || 'Mumbai, MH'
+          });
         } catch (error) {
           console.error("Error fetching profile:", error);
         }
@@ -700,6 +711,43 @@ function ProfileView({ role, onLogout }: any) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function FilteredProvidersView({ categoryIds, title }: { categoryIds: string[], title: string }) {
+  const [selectedProvider, setSelectedProvider] = useState<any>(null);
+  const activeProviders = providers.filter(p => categoryIds.includes(p.serviceId));
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div className="space-y-2">
+        <h2 className="text-3xl font-bold text-slate-900">{title}</h2>
+        <p className="text-slate-500">Find top-rated professionals for {title.toLowerCase()}.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {activeProviders.length > 0 ? (
+          activeProviders.map((provider: any) => (
+            <ProviderCard 
+              key={provider.id} 
+              provider={provider} 
+              onViewDetails={() => setSelectedProvider(provider)}
+            />
+          ))
+        ) : (
+          <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-2xl border border-slate-200 flex flex-col items-center justify-center gap-3 shadow-sm">
+            <Search className="w-8 h-8 text-slate-300" />
+            <p>No providers found for this category.</p>
+          </div>
+        )}
+      </div>
+
+      <ProviderDetailsModal 
+        provider={selectedProvider} 
+        isOpen={!!selectedProvider} 
+        onClose={() => setSelectedProvider(null)} 
+      />
     </div>
   );
 }
