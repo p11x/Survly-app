@@ -4,7 +4,7 @@ import {
   Search, Bell, MapPin, Star, MessageCircle, Phone,
   Wrench, Zap, Sparkles, Car, Settings, Scissors, MoreHorizontal,
   Home, Calendar, FileText, User, LogOut, CheckCircle, ChevronRight, ChevronLeft, Loader2,
-  AirVent, Package, Siren, MessageSquare
+  AirVent, Package, Siren, MessageSquare, Briefcase
 } from 'lucide-react';
 import { services, providers } from '../data';
 import { Role } from '../types';
@@ -100,9 +100,18 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
             </div>
           )}
           <SidebarItem icon={Home} label="Home" active={activeTab === 'home'} onClick={() => setActiveTab('home')} minimized={isSidebarMinimized} />
-          <SidebarItem icon={Sparkles} label="Home services" active={activeTab === 'home_services'} onClick={() => setActiveTab('home_services')} minimized={isSidebarMinimized} />
-          <SidebarItem icon={Car} label="Vehicle care" active={activeTab === 'vehicle_care'} onClick={() => setActiveTab('vehicle_care')} minimized={isSidebarMinimized} />
-          <SidebarItem icon={Scissors} label="Self care" active={activeTab === 'self_care'} onClick={() => setActiveTab('self_care')} minimized={isSidebarMinimized} />
+          {role?.trim().toLowerCase() === 'provider' ? (
+            <>
+              <SidebarItem icon={Sparkles} label="Add service" active={activeTab === 'add_service'} onClick={() => setActiveTab('add_service')} minimized={isSidebarMinimized} />
+              <SidebarItem icon={Briefcase} label="My services" active={activeTab === 'my_services'} onClick={() => setActiveTab('my_services')} minimized={isSidebarMinimized} />
+            </>
+          ) : (
+            <>
+              <SidebarItem icon={Sparkles} label="Home services" active={activeTab === 'home_services'} onClick={() => setActiveTab('home_services')} minimized={isSidebarMinimized} />
+              <SidebarItem icon={Car} label="Vehicle care" active={activeTab === 'vehicle_care'} onClick={() => setActiveTab('vehicle_care')} minimized={isSidebarMinimized} />
+              <SidebarItem icon={Scissors} label="Self care" active={activeTab === 'self_care'} onClick={() => setActiveTab('self_care')} minimized={isSidebarMinimized} />
+            </>
+          )}
           <SidebarItem icon={Calendar} label="Bookings" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} minimized={isSidebarMinimized} />
           <SidebarItem icon={MessageSquare} label="Messages" active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} minimized={isSidebarMinimized} />
           <SidebarItem icon={FileText} label="Requirements" active={activeTab === 'req'} onClick={() => setActiveTab('req')} minimized={isSidebarMinimized} />
@@ -157,7 +166,9 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
               className="absolute inset-0 p-6 pb-32 md:pb-6 overflow-y-auto custom-scrollbar"
             >
               {activeTab === 'home' && (
-                role === 'user' ? (
+                role?.trim().toLowerCase() === 'provider' ? (
+                  <ProviderDashboardView />
+                ) : (
                   <UserDashboardView
                     activeCategory={activeCategory}
                     setActiveCategory={setActiveCategory}
@@ -166,10 +177,10 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
                     activeProviders={activeProviders}
                     isLoadingProviders={isLoadingProviders}
                   />
-                ) : (
-                  <ProviderDashboardView />
                 )
               )}
+              {activeTab === 'add_service' && <AddServiceView />}
+              {activeTab === 'my_services' && <MyServicesView />}
               {activeTab === 'home_services' && <FilteredProvidersView categoryIds={['cleaning', 'plumbing', 'electrical', 'appliance']} title="Home services" />}
               {activeTab === 'vehicle_care' && <FilteredProvidersView categoryIds={['vehicle']} title="Vehicle care" />}
               {activeTab === 'self_care' && <FilteredProvidersView categoryIds={['beauty']} title="Self care" />}
@@ -196,9 +207,18 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-200 p-3 pb-safe z-50">
         <div className="flex overflow-x-auto hide-scrollbar gap-6 px-2">
           <MobileNavItem icon={Home} label="Home" active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
-          <MobileNavItem icon={Sparkles} label="Home Care" active={activeTab === 'home_services'} onClick={() => setActiveTab('home_services')} />
-          <MobileNavItem icon={Car} label="Vehicle" active={activeTab === 'vehicle_care'} onClick={() => setActiveTab('vehicle_care')} />
-          <MobileNavItem icon={Scissors} label="Self Care" active={activeTab === 'self_care'} onClick={() => setActiveTab('self_care')} />
+          {role?.trim().toLowerCase() === 'provider' ? (
+            <>
+              <MobileNavItem icon={Sparkles} label="Add service" active={activeTab === 'add_service'} onClick={() => setActiveTab('add_service')} />
+              <MobileNavItem icon={Briefcase} label="My services" active={activeTab === 'my_services'} onClick={() => setActiveTab('my_services')} />
+            </>
+          ) : (
+            <>
+              <MobileNavItem icon={Sparkles} label="Home Care" active={activeTab === 'home_services'} onClick={() => setActiveTab('home_services')} />
+              <MobileNavItem icon={Car} label="Vehicle" active={activeTab === 'vehicle_care'} onClick={() => setActiveTab('vehicle_care')} />
+              <MobileNavItem icon={Scissors} label="Self Care" active={activeTab === 'self_care'} onClick={() => setActiveTab('self_care')} />
+            </>
+          )}
           <MobileNavItem icon={Calendar} label="Bookings" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} />
         <MobileNavItem icon={MessageSquare} label="Messages" active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} />
         <MobileNavItem icon={FileText} label="Requests" active={activeTab === 'req'} onClick={() => setActiveTab('req')} />
@@ -537,6 +557,155 @@ function StatCard({ title, value, trend }: any) {
           <h3 className="text-3xl font-bold text-slate-900">{value}</h3>
           <span className="text-indigo-600 text-sm font-medium">{trend}</span>
        </div>
+    </div>
+  );
+}
+
+function AddServiceView() {
+  const [selectedService, setSelectedService] = useState<string | null>(null);
+
+  if (selectedService) {
+    const service = services.find(s => s.id === selectedService);
+    const Icon = iconMap[service?.iconName || 'Settings'];
+    return (
+      <div className="max-w-5xl mx-auto space-y-8">
+        <div className="flex items-center gap-4">
+          <button onClick={() => setSelectedService(null)} className="p-2 hover:bg-slate-200 rounded-full transition-colors bg-slate-100">
+            <ChevronLeft className="w-5 h-5 text-slate-600" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
+              {Icon && <Icon className="w-8 h-8 text-indigo-500" />} Add {service?.name}
+            </h1>
+            <p className="text-slate-500">Set your pricing and experience for {service?.name.toLowerCase()}.</p>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm max-w-2xl">
+          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setSelectedService(null); }}>
+             <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Pricing (per hour)</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">₹</span>
+                    <input type="number" placeholder="499" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-8 pr-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none" required />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Experience</label>
+                  <select className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                     <option>1-2 Years</option>
+                     <option>3-5 Years</option>
+                     <option>5+ Years</option>
+                  </select>
+                </div>
+             </div>
+             <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition-colors">
+               Save & Publish Service
+             </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Add a Service</h1>
+        <p className="text-slate-500">Select the category of service you want to provide.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {services.map((service) => {
+          const Icon = iconMap[service.iconName];
+          return (
+            <button
+              key={service.id}
+              onClick={() => setSelectedService(service.id)}
+              className="group relative flex flex-col w-full text-left rounded-2xl border border-slate-200 bg-white hover:shadow-md hover:border-indigo-300 transition-all duration-300 overflow-hidden"
+            >
+              <div className="relative z-10 w-full h-full flex flex-col bg-white rounded-[15px] overflow-hidden">
+                <div className="h-32 w-full relative overflow-hidden">
+                  {service.image ? (
+                    <>
+                      <img src={service.image} alt={service.name} className="w-full h-full object-cover transition-transform duration-600 ease-out group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </>
+                  ) : (
+                    <div className="w-full h-full bg-slate-100 flex items-center justify-center transition-transform duration-600 ease-out group-hover:scale-110 text-slate-300">
+                      {Icon && <Icon className="w-12 h-12" />}
+                    </div>
+                  )}
+                  
+                  <div className="absolute bottom-3 left-4 p-2 rounded-xl shadow-lg border z-10 flex items-center justify-center w-12 h-12 bg-white border-slate-100 text-indigo-500 group-hover:bg-indigo-50 transition-colors">
+                    {Icon && <Icon className="w-6 h-6" />}
+                  </div>
+                </div>
+                
+                <div className="pt-4 pb-5 px-5 bg-white flex-1">
+                  <h4 className="font-bold text-slate-900 text-base mb-1 group-hover:text-indigo-600 transition-colors">{service.name}</h4>
+                  <p className="text-sm text-slate-500 line-clamp-1">{service.subtitle || 'Explore this category'}</p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MyServicesView() {
+  return (
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900">My Services</h1>
+        <p className="text-slate-500">Manage your added services and currently running services.</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-indigo-500" /> Added Services
+          </h3>
+          <div className="space-y-4">
+            <div className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex justify-between items-center">
+              <div>
+                <h4 className="font-medium text-slate-900">Home Cleaning</h4>
+                <p className="text-sm text-slate-500">₹499/hr • 4.8 Rating</p>
+              </div>
+              <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Active</span>
+            </div>
+            <div className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex justify-between items-center">
+              <div>
+                <h4 className="font-medium text-slate-900">Electrical Repair</h4>
+                <p className="text-sm text-slate-500">₹299/hr • 4.9 Rating</p>
+              </div>
+              <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
+            <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" /> Running Services
+          </h3>
+          <div className="space-y-4">
+            <div className="p-4 rounded-xl border border-indigo-100 bg-indigo-50/50">
+              <div className="flex justify-between items-start mb-2">
+                <h4 className="font-medium text-slate-900">AC Servicing</h4>
+                <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-md">In Progress</span>
+              </div>
+              <p className="text-sm text-slate-600 mb-3">Customer: Rahul Sharma • Started 45m ago</p>
+              <div className="w-full bg-slate-200 rounded-full h-1.5 mb-2">
+                <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: '60%' }}></div>
+              </div>
+              <p className="text-xs text-slate-500 text-right">Estimated completion: 15 mins</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

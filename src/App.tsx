@@ -19,7 +19,8 @@ export default function App() {
           const userRef = ref(db, `users/${user.uid}`);
           const userSnapshot = await get(userRef);
           if (userSnapshot.exists()) {
-            setRole(userSnapshot.val().role as Role);
+            const data = userSnapshot.val();
+            setRole((data.role?.toLowerCase() as Role) || 'user');
           } else {
             // Default to user if no doc exists (fallback)
             setRole('user');
