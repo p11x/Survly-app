@@ -1,0 +1,28 @@
+#!/bin/bash
+check() {
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$1")
+  echo "$STATUS $1"
+}
+check "https://images.unsplash.com/photo-1560066984-138dadb4c035"
+check "https://images.unsplash.com/photo-1519823551278-64ac92734fb1"
+check "https://images.unsplash.com/photo-1622286342621-4bd786c2447c"
+check "https://images.unsplash.com/photo-1522337660859-02fbefca4702"
+check "https://images.unsplash.com/photo-1544161515-4ab6ce6db874"
+check "https://images.unsplash.com/photo-1596462502278-27bfdc403348"
+check "https://images.unsplash.com/photo-1516975080661-422fc9967e53"
+check "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388"
+check "https://images.unsplash.com/photo-1600948836101-f9ffda59d250"
+check "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881"
+check "https://images.unsplash.com/photo-1580618672591-eb180b1a973f"
+check "https://images.unsplash.com/photo-1552693673-1bf958298935"
+check "https://images.unsplash.com/photo-1515377905703-c4788e51af15"
+check "https://images.unsplash.com/photo-1521590832167-7bfcbaa63629"
+check "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881"
+check "https://images.unsplash.com/photo-1606857521015-7f9fcf423740"
+check "https://images.unsplash.com/photo-1507652313519-d4e9174996cb"
+check "https://images.unsplash.com/photo-1512496015851-a1cbf5c561a2"
+check "https://images.unsplash.com/photo-1616394584738-fc6e612e71c9"
+check "https://images.unsplash.com/photo-1498837167922-ddd27525d352"
+check "https://images.unsplash.com/photo-1532012197267-da84d127e765"
+check "https://images.unsplash.com/photo-1540555700880-cdce430aa0bf"
+check "https://images.unsplash.com/photo-1599566150163-29194dcaad36"

@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, Bell, MapPin, Star, MessageCircle, Phone,
   Wrench, Zap, Sparkles, Car, Settings, Scissors, MoreHorizontal,
-  Home, Calendar, FileText, User, LogOut, CheckCircle, ChevronRight, ChevronLeft, Loader2,
-  AirVent, Package, Siren, MessageSquare, Briefcase
+  Home, Calendar, FileText, User, Users, LogOut, CheckCircle, ChevronRight, ChevronLeft, Loader2, ShoppingCart, ChevronDown, CircleUser,
+  AirVent, Package, Siren, MessageSquare, Briefcase, ClipboardList, Smartphone, Headphones, Wallet, Ticket, CreditCard, Info
 } from 'lucide-react';
 import { services, providers } from '../data';
 import { Role } from '../types';
@@ -18,6 +18,7 @@ const iconMap: Record<string, any> = {
   Wrench, Zap, Sparkles, Car, Settings, Scissors, MoreHorizontal, AirVent, Package, Siren
 };
 
+import ProfileSubPage from "./ProfileSubPage";
 import SkeletonProviderCard from './SkeletonProviderCard';
 import ProviderCard from './ProviderCard';
 import ProviderDetailsModal from './ProviderDetailsModal';
@@ -46,7 +47,7 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('home');
   const [location, setLocation] = useState('Mumbai, MH');
-  const [isSidebarMinimized, setIsSidebarMinimized] = useState(false);
+  const [isSidebarMinimized, setIsSidebarMinimized] = useState(true);
   const [isLoadingProviders, setIsLoadingProviders] = useState(false);
 
   useEffect(() => {
@@ -136,23 +137,44 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
       <main className="flex-1 flex flex-col h-full relative overflow-hidden">
         {/* Header - Fixed & Independent */}
         <header className="px-10 h-20 shrink-0 w-full flex items-center justify-between border-b border-slate-200/50 bg-white/60 backdrop-blur-xl sticky top-0 z-40 transition-all duration-300">
-          <motion.button 
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setActiveTab('location')}
-            className="flex items-center gap-2 text-sm text-slate-600 bg-white px-4 py-2 rounded-full border border-slate-200 hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-          >
-            <MapPin className="w-4 h-4 text-indigo-500" />
-            <span className="font-medium">{location}</span>
-            <ChevronRight className="w-4 h-4 ml-1 text-slate-400" />
-          </motion.button>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="relative text-slate-500 p-2 hover:text-indigo-600 transition-colors group"
-          >
-            <Bell className="w-6 h-6 group-hover:animate-ring" />
-            <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse-slow"></span>
-          </motion.button>
+          <div className="flex items-center gap-4">
+            <motion.button 
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setActiveTab('location')}
+              className="flex items-center gap-2 text-sm text-slate-600 bg-white px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm min-w-[260px] justify-between"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <MapPin className="w-4 h-4 text-slate-500 shrink-0" />
+                <span className="font-medium truncate">{location === 'Mumbai, MH' ? 'A-22, Lakshmi Narsimha ...' : location}</span>
+              </div>
+              <ChevronDown className="w-4 h-4 ml-2 text-slate-500 shrink-0" />
+            </motion.button>
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input 
+                type="text" 
+                placeholder="Search for 'Waxing'" 
+                className="w-[320px] bg-white border border-slate-200 text-sm text-slate-500 rounded-xl px-11 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow shadow-sm"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 border-2 border-slate-200 rounded-full hover:bg-slate-50 transition-colors flex items-center justify-center w-11 h-11"
+            >
+              <ShoppingCart className="w-5 h-5 text-slate-900" />
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setActiveTab('profile')}
+              className="hover:bg-slate-100 rounded-full transition-colors flex items-center justify-center w-11 h-11"
+            >
+              <CircleUser className="w-6 h-6 text-slate-900" strokeWidth={1.5} />
+            </motion.button>
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto p-6 pb-32 md:pb-6 custom-scrollbar relative z-10">
@@ -510,13 +532,58 @@ function UserDashboardView({ activeCategory, setActiveCategory, searchQuery, set
         </div>
       </motion.div>
 
-
+      <AppServiceAdvantages />
 
       <ProviderDetailsModal 
         provider={selectedProvider} 
         isOpen={!!selectedProvider} 
         onClose={() => setSelectedProvider(null)} 
       />
+    </div>
+  );
+}
+
+function AppServiceAdvantages() {
+  return (
+    <div className="mt-16 space-y-6">
+      <h2 className="text-3xl font-bold text-slate-900">Survly app service advantages</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-[#f5f5f5] rounded-2xl p-8 relative overflow-hidden min-h-[320px] flex flex-col justify-between group">
+          <div className="z-10 relative pr-4">
+            <h3 className="text-2xl font-semibold text-slate-900 mb-3">Professional installation</h3>
+            <p className="text-slate-600 text-lg">Only top technicians trained by Survly.</p>
+          </div>
+          <img 
+            src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&auto=format&fit=crop&q=60" 
+            alt="Professional installation" 
+            className="absolute bottom-0 right-0 w-48 h-48 object-cover rounded-tl-3xl transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
+
+        <div className="bg-[#f5f5f5] rounded-2xl p-8 relative overflow-hidden min-h-[320px] flex flex-col justify-between group">
+          <div className="z-10 relative">
+            <h3 className="text-2xl font-semibold text-slate-900 mb-3">24×7 expert support</h3>
+            <p className="text-slate-600 text-lg">Talk to experts who understand the product.</p>
+          </div>
+          <img 
+            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&auto=format&fit=crop&q=60" 
+            alt="Expert support" 
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-48 object-cover rounded-t-full transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
+
+        <div className="bg-[#f5f5f5] rounded-2xl p-8 relative overflow-hidden min-h-[320px] flex flex-col justify-between group">
+          <div className="z-10 relative">
+            <h3 className="text-2xl font-semibold text-slate-900 mb-3">Servicing 14,500+ pin codes</h3>
+            <p className="text-slate-600 text-lg">We never outsource service to locals.</p>
+          </div>
+          <img 
+            src="https://images.unsplash.com/photo-1569336415962-a4bd9f69c07b?w=600&auto=format&fit=crop&q=60" 
+            alt="Servicing locations" 
+            className="absolute bottom-0 right-0 w-48 h-48 object-cover opacity-80 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -750,11 +817,10 @@ function RequirementsView() {
     </div>
   );
 }
-
 function ProfileView({ role, onLogout }: any) {
   const [profile, setProfile] = useState({ name: '', email: '', phone: '', location: 'Mumbai, MH' });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [currentView, setCurrentView] = useState('main');
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -778,25 +844,6 @@ function ProfileView({ role, onLogout }: any) {
     fetchProfile();
   }, []);
 
-  const handleSave = async () => {
-    if (auth.currentUser) {
-      setSaving(true);
-      try {
-        const userRef = ref(db, `users/${auth.currentUser.uid}`);
-        await update(userRef, {
-          name: profile.name,
-          phone: profile.phone,
-          location: profile.location
-        });
-        // Feedback can be given via toast or button state
-      } catch (error) {
-        console.error("Error updating profile:", error);
-      } finally {
-        setSaving(false);
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto flex items-center justify-center min-h-[400px]">
@@ -805,81 +852,83 @@ function ProfileView({ role, onLogout }: any) {
     );
   }
 
+  if (currentView !== 'main') {
+    return <ProfileSubPage view={currentView} onBack={() => setCurrentView('main')} profile={profile} setProfile={setProfile} />;
+  }
+
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Profile Settings</h1>
-        <p className="text-slate-500">Manage your account details and preferences.</p>
-      </div>
-
-      <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
-        <div className="flex items-center gap-6 mb-8">
-          <div className="w-24 h-24 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-3xl font-bold shadow-inner uppercase">
-            {profile.name ? profile.name.charAt(0) : 'U'}
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900">{profile.name || 'User Account'}</h2>
-            <p className="text-slate-500 capitalize">{role} Account</p>
-          </div>
+    <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
+      <div className="flex items-center gap-6 mb-8 pt-4">
+        <div className="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-2xl font-bold shadow-inner uppercase">
+          {profile.name ? profile.name.charAt(0) : 'U'}
         </div>
-
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Full Name</label>
-              <input 
-                type="text" 
-                value={profile.name}
-                onChange={(e) => setProfile({...profile, name: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900" 
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Email Address</label>
-              <input 
-                type="email" 
-                value={profile.email}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 opacity-70 cursor-not-allowed" 
-                readOnly 
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Phone Number</label>
-              <input 
-                type="tel" 
-                value={profile.phone}
-                onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900" 
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Location</label>
-              <input 
-                type="text" 
-                value={profile.location}
-                onChange={(e) => setProfile({...profile, location: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900" 
-              />
-            </div>
-          </div>
-
-          <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
-             <button 
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-xl transition-all shadow-sm"
-             >
-                {saving ? 'Saving...' : 'Save Changes'}
-             </button>
-             <button 
-                onClick={onLogout} 
-                className="flex-1 bg-white border border-red-200 text-red-600 hover:bg-red-50 font-semibold py-2.5 rounded-xl transition-all shadow-sm"
-             >
-                Sign Out
-             </button>
-          </div>
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">{profile.name || 'User Account'}</h2>
+          <p className="text-slate-500">{profile.phone || profile.email}</p>
         </div>
       </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div onClick={() => setCurrentView('bookings')} className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 flex flex-col gap-3 shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-200 transition-all">
+          <ClipboardList className="w-6 h-6 text-slate-700" />
+          <span className="font-semibold text-slate-900 text-sm sm:text-base">My bookings</span>
+        </div>
+        <div onClick={() => setCurrentView('devices')} className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 flex flex-col gap-3 shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-200 transition-all">
+          <Smartphone className="w-6 h-6 text-slate-700" />
+          <span className="font-semibold text-slate-900 text-sm sm:text-base">Native devices</span>
+        </div>
+        <div onClick={() => setCurrentView('support')} className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 flex flex-col gap-3 shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-200 transition-all">
+          <Headphones className="w-6 h-6 text-slate-700" />
+          <span className="font-semibold text-slate-900 text-sm sm:text-base">Help & support</span>
+        </div>
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="flex flex-col">
+          <ProfileListItem icon={FileText} label="My Plans" onClick={() => setCurrentView('plans')} />
+          <ProfileListItem icon={Wallet} label="Wallet" onClick={() => setCurrentView('wallet')} />
+          <ProfileListItem icon={Ticket} label="Passes & membership" onClick={() => setCurrentView('passes')} />
+          <ProfileListItem icon={Star} label="My rating" onClick={() => setCurrentView('rating')} />
+          <ProfileListItem icon={MapPin} label="Manage addresses" onClick={() => setCurrentView('addresses')} />
+          <ProfileListItem icon={CreditCard} label="Manage payment methods" onClick={() => setCurrentView('payment')} />
+          <ProfileListItem icon={Settings} label="Settings" onClick={() => setCurrentView('settings')} />
+          <ProfileListItem icon={Info} label="About Survly" onClick={() => setCurrentView('about')} />
+        </div>
+      </div>
+
+      <div onClick={() => setCurrentView('refer')} className="bg-gradient-to-r from-purple-50 to-white border border-purple-100 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-4 cursor-pointer hover:shadow-md transition-all">
+        <div>
+          <h3 className="text-xl font-bold text-slate-900">Refer & earn ₹50</h3>
+          <p className="text-slate-600 text-sm mt-1">Get ₹50 when your friend completes their first booking.</p>
+        </div>
+        <img 
+          src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=150&auto=format&fit=crop&q=60" 
+          alt="Gift Box"
+          className="w-16 h-16 object-cover rounded-xl shrink-0 mix-blend-multiply"
+        />
+      </div>
+
+      <div className="pt-6">
+        <button 
+          onClick={onLogout} 
+          className="w-full sm:w-auto bg-white border border-red-200 text-red-600 hover:bg-red-50 font-semibold py-3 px-8 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 mx-auto"
+        >
+          <LogOut className="w-4 h-4" />
+          Log out
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ProfileListItem({ icon: Icon, label, onClick }: { icon: any, label: string, onClick?: () => void }) {
+  return (
+    <div onClick={onClick} className="flex items-center justify-between p-4 sm:px-6 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors">
+      <div className="flex items-center gap-4">
+        <Icon className="w-5 h-5 text-slate-600" />
+        <span className="text-slate-800 font-medium text-sm sm:text-base">{label}</span>
+      </div>
+      <ChevronRight className="w-5 h-5 text-slate-400" />
     </div>
   );
 }
@@ -894,6 +943,10 @@ function FilteredProvidersView({ categoryIds, title }: { categoryIds: string[], 
         <h2 className="text-3xl font-bold text-slate-900">{title}</h2>
         <p className="text-slate-500">Find top-rated professionals for {title.toLowerCase()}.</p>
       </div>
+
+      {title === 'Self care' && <BeautyServicesSection />}
+      {title === 'Vehicle care' && <VehicleCareSection />}
+      {title === 'Home services' && <HomeServicesSection />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {activeProviders.length > 0 ? (
@@ -1080,6 +1133,226 @@ function LocationView({ current, onSelect, onCancel }: { current: string, onSele
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+function BeautyServicesSection() {
+  return (
+    <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="space-y-8">
+        <h2 className="text-4xl font-bold text-slate-900 leading-tight">Beauty services at your<br/>doorstep</h2>
+        
+        <div className="border border-slate-200 rounded-3xl p-8 bg-white shadow-sm">
+          <div className="grid grid-cols-3 gap-y-8 gap-x-4">
+            <ServiceIcon title="Salon for Women" image="https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Spa for Women" image="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=150&auto=format&fit=crop&q=60" badge="44 mins" />
+            <ServiceIcon title="Hair Studio for Women" image="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Makeup, Saree & Styling" image="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Salon Royale" image="https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Massage for Men" image="https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=150&auto=format&fit=crop&q=60" badge="44 mins" />
+            <ServiceIcon title="Hair cut for men" image="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Bridal Packages" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/PreBridalPackages.webp?alt=media&token=11dfa8c8-170d-4531-b2ab-d520c37cd526" />
+            <ServiceIcon title="Skin Care Clinic" image="https://images.unsplash.com/photo-1552693673-1bf958298935?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Yoga & Meditation classes" image="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Therapy & Counseling" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/young-indian-man-consulting-with-professional-psychologist-sitting-indoor.webp?alt=media&token=cc681791-ac1e-4d72-9ff7-e99139a6cd88" />
+            <ServiceIcon title="Tattoo & Piercing" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/photo-1565058379802-bbe93b2f703a.webp?alt=media&token=48bdd05b-f0e5-4be3-8b30-adabd96b3d0d" />
+            <ServiceIcon title="Ayurveda & Alternative Medicine" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/ayurveda-20938663.webp?alt=media&token=bf303e5c-6fbc-4cc8-822e-c90ba3853914" />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-12 pt-4">
+          <div className="flex items-center gap-4">
+            <Star className="w-8 h-8 text-slate-800" />
+            <div>
+              <div className="text-2xl font-bold text-slate-900">4.8</div>
+              <div className="text-sm text-slate-500">Service Rating*</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Users className="w-8 h-8 text-slate-800" />
+            <div>
+              <div className="text-2xl font-bold text-slate-900">12M+</div>
+              <div className="text-sm text-slate-500">Customers Globally*</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 h-full">
+        <img 
+          src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&auto=format&fit=crop&q=60" 
+          alt="Hair Salon" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+        <img 
+          src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&auto=format&fit=crop&q=60" 
+          alt="Haircut" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+        <img 
+          src="https://images.unsplash.com/photo-1615396899839-c99c121888b0?w=600&auto=format&fit=crop&q=60" 
+          alt="Skin care facial" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+        <img 
+          src="https://images.unsplash.com/photo-1552693673-1bf958298935?w=600&auto=format&fit=crop&q=60" 
+          alt="Skin care products" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+      </div>
+    </div>
+  );
+}
+
+function VehicleCareSection() {
+  return (
+    <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="space-y-8">
+        <h2 className="text-4xl font-bold text-slate-900 leading-tight">Vehicle care at your<br/>doorstep</h2>
+        
+        <div className="border border-slate-200 rounded-3xl p-8 bg-white shadow-sm">
+          <div className="grid grid-cols-3 gap-y-8 gap-x-4">
+            <ServiceIcon title="Oil Change" image="https://images.unsplash.com/photo-1626668893632-6f3a4466d22f?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Brake Repair" image="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=150&auto=format&fit=crop&q=60" badge="30 mins" />
+            <ServiceIcon title="Battery Replacement" image="https://images.unsplash.com/photo-1620064916958-605375619af8?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Tire Services" image="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="General Repair" image="https://images.unsplash.com/photo-1504222490345-c075b6008014?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Car Service" image="https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?w=150&auto=format&fit=crop&q=60" badge="60 mins" />
+            <ServiceIcon title="Advanced Mechanical & Fluid Services" image="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Deep Cleaning & Aesthetics" image="https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Electric Vehicle (EV) Services" image="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=150&auto=format&fit=crop&q=60" />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-12 pt-4">
+          <div className="flex items-center gap-4">
+            <Star className="w-8 h-8 text-slate-800" />
+            <div>
+              <div className="text-2xl font-bold text-slate-900">4.9</div>
+              <div className="text-sm text-slate-500">Service Rating*</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Users className="w-8 h-8 text-slate-800" />
+            <div>
+              <div className="text-2xl font-bold text-slate-900">8M+</div>
+              <div className="text-sm text-slate-500">Customers Globally*</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 h-full">
+        <img 
+          src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=600&auto=format&fit=crop&q=60" 
+          alt="Mechanic" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+        <img 
+          src="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&auto=format&fit=crop&q=60" 
+          alt="Car Wash" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+        <img 
+          src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&auto=format&fit=crop&q=60" 
+          alt="Car Driving" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+        <img 
+          src="https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=600&auto=format&fit=crop&q=60" 
+          alt="Engine Repair" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+      </div>
+    </div>
+  );
+}
+
+function HomeServicesSection() {
+  return (
+    <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="space-y-8">
+        <h2 className="text-4xl font-bold text-slate-900 leading-tight">Home services at your<br/>doorstep</h2>
+        
+        <div className="border border-slate-200 rounded-3xl p-8 bg-white shadow-sm">
+          <div className="grid grid-cols-3 gap-y-8 gap-x-4">
+            <ServiceIcon title="Visit & inspection" image="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Tap or minor leak repair" image="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=150&auto=format&fit=crop&q=60" badge="30 mins" />
+            <ServiceIcon title="Toilet repair" image="https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Pipe blockage removal" image="https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Bathroom fitting installation" image="https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Switchboard repair" image="https://images.unsplash.com/photo-1558522195-e1201b090344?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Fan installation" image="https://images.unsplash.com/photo-1519643381401-22c77e60520e?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Wiring replacement" image="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=150&auto=format&fit=crop&q=60" badge="60 mins" />
+            <ServiceIcon title="1 BHK Deep Cleaning" image="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="2 BHK Deep Cleaning" image="https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Sofa Cleaning" image="https://images.unsplash.com/photo-1558211583-d26f610c1eb1?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Bathroom Cleaning" image="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Drain Jetting" image="https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Geyser/Water Heater Installation & Repair" image="https://images.unsplash.com/photo-1585772391269-897c9b0e2586?w=150&auto=format&fit=crop&q=60" />
+            <ServiceIcon title="Painting & Wall Putty" image="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=150&auto=format&fit=crop&q=60" />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-12 pt-4">
+          <div className="flex items-center gap-4">
+            <Star className="w-8 h-8 text-slate-800" />
+            <div>
+              <div className="text-2xl font-bold text-slate-900">4.8</div>
+              <div className="text-sm text-slate-500">Service Rating*</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Users className="w-8 h-8 text-slate-800" />
+            <div>
+              <div className="text-2xl font-bold text-slate-900">10M+</div>
+              <div className="text-sm text-slate-500">Customers Globally*</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 h-full">
+        <img 
+          src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&auto=format&fit=crop&q=60" 
+          alt="Cleaning Service" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+        <img 
+          src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&auto=format&fit=crop&q=60" 
+          alt="Electrical Repair" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+        <img 
+          src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&auto=format&fit=crop&q=60" 
+          alt="Plumbing" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+        <img 
+          src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&auto=format&fit=crop&q=60" 
+          alt="Painting" 
+          className="w-full h-[280px] object-cover rounded-2xl"
+        />
+      </div>
+    </div>
+  );
+}
+
+function ServiceIcon({ title, image, badge }: { title: string, image: string, badge?: string }) {
+  return (
+    <div className="flex flex-col items-center text-center gap-3">
+      <div className="relative">
+        <div className="w-20 h-16 bg-[#f5f5f5] rounded-xl flex items-center justify-center overflow-hidden">
+          <img src={image} alt={title} className="w-12 h-12 object-cover rounded-lg" />
+        </div>
+        {badge && (
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-2 py-0.5 rounded shadow-sm text-[10px] font-medium text-emerald-600 border border-slate-100 whitespace-nowrap">
+            {badge}
+          </div>
+        )}
+      </div>
+      <span className="text-xs font-medium text-slate-800 leading-tight px-1">{title}</span>
     </div>
   );
 }
