@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, Bell, MapPin, Star, MessageCircle, Phone,
-  Wrench, Zap, Sparkles, Car, Settings, Scissors, MoreHorizontal,
+  Wrench, Zap, Sparkles, Plus, Clock, Car, Settings, Scissors, MoreHorizontal,
   Home, Calendar, FileText, User, Users, LogOut, CheckCircle, ChevronRight, ChevronLeft, Loader2, ShoppingCart, ChevronDown, CircleUser,
   AirVent, Package, Siren, MessageSquare, Briefcase, ClipboardList, Smartphone, Headphones, Wallet, Ticket, CreditCard, Info
 } from 'lucide-react';
@@ -15,7 +15,7 @@ import Typewriter from './Typewriter';
 import MessagesView from './MessagesView';
 
 const iconMap: Record<string, any> = {
-  Wrench, Zap, Sparkles, Car, Settings, Scissors, MoreHorizontal, AirVent, Package, Siren
+  Wrench, Zap, Sparkles, Plus, Clock, Car, Settings, Scissors, MoreHorizontal, AirVent, Package, Siren
 };
 
 import ProfileSubPage from "./ProfileSubPage";
@@ -591,26 +591,89 @@ function AppServiceAdvantages() {
 
 function ProviderDashboardView() {
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Provider Dashboard</h1>
-        <p className="text-slate-500">Manage your incoming requests and schedule.</p>
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
+       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+         <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">Provider Dashboard</h1>
+          <p className="text-slate-500 text-lg">Manage your incoming requests, earnings, and schedule.</p>
+         </div>
+         <div className="flex items-center gap-3">
+           <button className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md hover:bg-slate-50 flex items-center gap-2">
+             <Calendar className="w-5 h-5" /> Schedule
+           </button>
+           <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+             <Zap className="w-5 h-5" /> Go Online
+           </button>
+         </div>
        </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard title="Today's Earnings" value="₹12,500.00" trend="+12%" />
-          <StatCard title="Active Requests" value="3" trend="Pending" />
-          <StatCard title="Profile Rating" value="4.8" trend="124 Reviews" />
-       </div>
-
-       <div className="bg-white border border-slate-200 rounded-2xl p-6 min-h-[300px] flex items-center justify-center shadow-sm">
-          <div className="text-center space-y-3">
-             <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                <Bell className="w-8 h-8 text-slate-400" />
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-gradient-to-br from-indigo-900 to-indigo-800 rounded-3xl p-6 shadow-xl relative overflow-hidden text-white group cursor-pointer hover:shadow-2xl transition-all hover:-translate-y-1">
+             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><Wallet className="w-24 h-24" /></div>
+             <div className="relative z-10">
+               <p className="text-indigo-200 uppercase tracking-widest text-xs font-bold mb-4">Today's Earnings</p>
+               <h3 className="text-4xl font-black mb-2">₹12,500</h3>
+               <span className="text-emerald-400 text-sm font-bold flex items-center gap-1"><ChevronRight className="w-4 h-4 -rotate-90"/> +12% from yesterday</span>
              </div>
-             <h3 className="text-xl font-medium text-slate-900">No new requests</h3>
-             <p className="text-slate-500 text-sm">We'll notify you when someone needs your services nearby.</p>
           </div>
+          
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-indigo-300 transition-all hover:-translate-y-1">
+             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Bell className="w-24 h-24 text-indigo-600" /></div>
+             <div className="relative z-10">
+               <p className="text-slate-500 uppercase tracking-widest text-xs font-bold mb-4">Active Requests</p>
+               <h3 className="text-4xl font-black text-slate-900 mb-2">3</h3>
+               <span className="text-amber-500 text-sm font-bold flex items-center gap-1"><Clock className="w-4 h-4"/> 1 Urgent</span>
+             </div>
+          </div>
+          
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-indigo-300 transition-all hover:-translate-y-1">
+             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Star className="w-24 h-24 text-yellow-500" /></div>
+             <div className="relative z-10">
+               <p className="text-slate-500 uppercase tracking-widest text-xs font-bold mb-4">Profile Rating</p>
+               <h3 className="text-4xl font-black text-slate-900 mb-2">4.8</h3>
+               <span className="text-slate-500 text-sm font-bold flex items-center gap-1"><Users className="w-4 h-4"/> 124 Reviews</span>
+             </div>
+          </div>
+       </div>
+
+       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+         <div className="lg:col-span-2 space-y-6">
+           <h3 className="text-xl font-bold text-slate-900">Recent Requests</h3>
+           <div className="bg-white border border-slate-200 rounded-3xl p-8 min-h-[300px] flex flex-col items-center justify-center shadow-sm text-center">
+              <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 border border-slate-100 shadow-inner">
+                 <Bell className="w-10 h-10 text-slate-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">No new requests</h3>
+              <p className="text-slate-500 text-lg max-w-sm mx-auto">We'll notify you instantly when someone needs your services nearby.</p>
+           </div>
+         </div>
+         
+         <div className="space-y-6">
+           <h3 className="text-xl font-bold text-slate-900">Performance</h3>
+           <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-6">
+              <div>
+                <div className="flex justify-between items-end mb-2">
+                  <span className="font-bold text-slate-700">Response Rate</span>
+                  <span className="font-black text-indigo-600">98%</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden"><div className="bg-indigo-600 h-2 rounded-full" style={{width: '98%'}}></div></div>
+              </div>
+              <div>
+                <div className="flex justify-between items-end mb-2">
+                  <span className="font-bold text-slate-700">Job Completion</span>
+                  <span className="font-black text-emerald-500">100%</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden"><div className="bg-emerald-500 h-2 rounded-full" style={{width: '100%'}}></div></div>
+              </div>
+              <div>
+                <div className="flex justify-between items-end mb-2">
+                  <span className="font-bold text-slate-700">On-Time Arrival</span>
+                  <span className="font-black text-amber-500">92%</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden"><div className="bg-amber-500 h-2 rounded-full" style={{width: '92%'}}></div></div>
+              </div>
+           </div>
+         </div>
        </div>
     </div>
   );
@@ -635,41 +698,57 @@ function AddServiceView() {
     const service = services.find(s => s.id === selectedService);
     const Icon = iconMap[service?.iconName || 'Settings'];
     return (
-      <div className="max-w-5xl mx-auto space-y-8">
-        <div className="flex items-center gap-4">
-          <button onClick={() => setSelectedService(null)} className="p-2 hover:bg-slate-200 rounded-full transition-colors bg-slate-100">
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
+      <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-8 duration-300 pb-12">
+        <div className="flex items-center gap-4 border-b border-slate-200 pb-6 pt-4">
+          <button onClick={() => setSelectedService(null)} className="p-3 bg-white border border-slate-200 hover:bg-slate-50 hover:border-indigo-300 rounded-full transition-all shadow-sm group">
+            <ChevronLeft className="w-6 h-6 text-slate-600 group-hover:text-indigo-600 transition-colors" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
-              {Icon && <Icon className="w-8 h-8 text-indigo-500" />} Add {service?.name}
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+              {Icon && <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl"><Icon className="w-8 h-8" /></div>} 
+              Add {service?.name}
             </h1>
-            <p className="text-slate-500">Set your pricing and experience for {service?.name.toLowerCase()}.</p>
+            <p className="text-slate-500 mt-1">Set your pricing, experience, and availability for {service?.name.toLowerCase()}.</p>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm max-w-2xl">
-          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setSelectedService(null); }}>
-             <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Pricing (per hour)</label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">₹</span>
-                    <input type="number" placeholder="499" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-8 pr-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none" required />
+        <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
+          <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setSelectedService(null); }}>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Pricing (per hour)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                      <input type="number" placeholder="499" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-lg font-medium text-slate-900 transition-all hover:border-indigo-300" required />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Experience Level</label>
+                    <select className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-lg font-medium text-slate-900 transition-all hover:border-indigo-300 cursor-pointer appearance-none">
+                       <option>Beginner (0-2 Years)</option>
+                       <option>Intermediate (3-5 Years)</option>
+                       <option>Expert (5+ Years)</option>
+                    </select>
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Experience</label>
-                  <select className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                     <option>1-2 Years</option>
-                     <option>3-5 Years</option>
-                     <option>5+ Years</option>
-                  </select>
+                
+                <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl">
+                  <h4 className="font-bold text-slate-900 mb-4 flex items-center gap-2"><CheckCircle className="w-5 h-5 text-emerald-500"/> Trust & Safety</h4>
+                  <p className="text-sm text-slate-600 mb-4 leading-relaxed">Providing accurate information helps build trust with customers and increases your booking rate.</p>
+                  <ul className="space-y-3 text-sm text-slate-600 font-medium">
+                    <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div> Background checks are required for new services.</li>
+                    <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div> Standard commission rates apply.</li>
+                  </ul>
                 </div>
              </div>
-             <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition-colors">
-               Save & Publish Service
-             </button>
+             
+             <div className="border-t border-slate-100 pt-8 flex justify-end gap-4">
+               <button type="button" onClick={() => setSelectedService(null)} className="px-8 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">Cancel</button>
+               <button type="submit" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2">
+                 <Sparkles className="w-5 h-5" /> Save & Publish Service
+               </button>
+             </div>
           </form>
         </div>
       </div>
@@ -677,45 +756,23 @@ function AddServiceView() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Add a Service</h1>
-        <p className="text-slate-500">Select the category of service you want to provide.</p>
+        <h1 className="text-3xl font-black tracking-tight text-slate-900">Add New Service</h1>
+        <p className="text-slate-500 text-lg">Select a category below to list your expertise and start receiving bookings.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {services.map((service) => {
-          const Icon = iconMap[service.iconName];
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        {services.map(service => {
+          const Icon = iconMap[service.iconName || 'Settings'];
           return (
-            <button
-              key={service.id}
-              onClick={() => setSelectedService(service.id)}
-              className="group relative flex flex-col w-full text-left rounded-2xl border border-slate-200 bg-white hover:shadow-md hover:border-indigo-300 transition-all duration-300 overflow-hidden"
-            >
-              <div className="relative z-10 w-full h-full flex flex-col bg-white rounded-[15px] overflow-hidden">
-                <div className="h-32 w-full relative overflow-hidden">
-                  {service.image ? (
-                    <>
-                      <img src={service.image} alt={service.name} className="w-full h-full object-cover transition-transform duration-600 ease-out group-hover:scale-110" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full bg-slate-100 flex items-center justify-center transition-transform duration-600 ease-out group-hover:scale-110 text-slate-300">
-                      {Icon && <Icon className="w-12 h-12" />}
-                    </div>
-                  )}
-                  
-                  <div className="absolute bottom-3 left-4 p-2 rounded-xl shadow-lg border z-10 flex items-center justify-center w-12 h-12 bg-white border-slate-100 text-indigo-500 group-hover:bg-indigo-50 transition-colors">
-                    {Icon && <Icon className="w-6 h-6" />}
-                  </div>
-                </div>
-                
-                <div className="pt-4 pb-5 px-5 bg-white flex-1">
-                  <h4 className="font-bold text-slate-900 text-base mb-1 group-hover:text-indigo-600 transition-colors">{service.name}</h4>
-                  <p className="text-sm text-slate-500 line-clamp-1">{service.subtitle || 'Explore this category'}</p>
-                </div>
+            <div key={service.id} onClick={() => setSelectedService(service.id)} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-400 group transition-all">
+              <div className="w-16 h-16 bg-slate-50 rounded-[1.25rem] flex items-center justify-center mb-4 group-hover:bg-indigo-50 group-hover:scale-110 transition-all border border-slate-100 group-hover:border-indigo-100 shadow-inner">
+                {Icon && <Icon className="w-8 h-8 text-slate-600 group-hover:text-indigo-600 transition-colors" />}
               </div>
-            </button>
+              <span className="font-bold text-slate-900 mb-1">{service.name}</span>
+              <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-md">Tap to setup</span>
+            </div>
           );
         })}
       </div>
@@ -725,50 +782,78 @@ function AddServiceView() {
 
 function MyServicesView() {
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">My Services</h1>
-        <p className="text-slate-500">Manage your added services and currently running services.</p>
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">My Services</h1>
+          <p className="text-slate-500 text-lg">Manage your added services and currently running services.</p>
+        </div>
+        <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+          <Plus className="w-5 h-5" /> Add Service
+        </button>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-indigo-500" /> Added Services
-          </h3>
+        
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <div className="bg-white border border-slate-200 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600"><Briefcase className="w-6 h-6" /></div>
+              Added Services
+            </h3>
+            <span className="bg-slate-100 text-slate-600 font-bold px-3 py-1 rounded-full text-sm">2 Active</span>
+          </div>
           <div className="space-y-4">
-            <div className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex justify-between items-center">
-              <div>
-                <h4 className="font-medium text-slate-900">Home Cleaning</h4>
-                <p className="text-sm text-slate-500">₹499/hr • 4.8 Rating</p>
+            <div className="p-5 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-center group hover:bg-white hover:border-indigo-200 transition-colors cursor-pointer shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100 group-hover:border-indigo-100 text-indigo-500"><Sparkles className="w-6 h-6"/></div>
+                <div>
+                  <h4 className="font-bold text-slate-900 text-lg">Home Cleaning</h4>
+                  <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">₹499/hr <span className="w-1 h-1 rounded-full bg-slate-300"></span> <Star className="w-3 h-3 text-yellow-400 fill-yellow-400"/> 4.8</p>
+                </div>
               </div>
-              <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Active</span>
+              <ChevronRight className="w-5 h-5 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:text-indigo-500 transition-all -translate-x-2 group-hover:translate-x-0" />
             </div>
-            <div className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex justify-between items-center">
-              <div>
-                <h4 className="font-medium text-slate-900">Electrical Repair</h4>
-                <p className="text-sm text-slate-500">₹299/hr • 4.9 Rating</p>
+            <div className="p-5 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-center group hover:bg-white hover:border-indigo-200 transition-colors cursor-pointer shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100 group-hover:border-indigo-100 text-indigo-500"><Zap className="w-6 h-6"/></div>
+                <div>
+                  <h4 className="font-bold text-slate-900 text-lg">Electrical Repair</h4>
+                  <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">₹299/hr <span className="w-1 h-1 rounded-full bg-slate-300"></span> <Star className="w-3 h-3 text-yellow-400 fill-yellow-400"/> 4.9</p>
+                </div>
               </div>
-              <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Active</span>
+              <ChevronRight className="w-5 h-5 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:text-indigo-500 transition-all -translate-x-2 group-hover:translate-x-0" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
-            <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" /> Running Services
-          </h3>
+        <div className="bg-white border border-slate-200 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600 relative">
+                <Loader2 className="w-6 h-6 animate-spin" />
+                <span className="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full"></span>
+              </div>
+              Running Now
+            </h3>
+          </div>
           <div className="space-y-4">
-            <div className="p-4 rounded-xl border border-indigo-100 bg-indigo-50/50">
-              <div className="flex justify-between items-start mb-2">
-                <h4 className="font-medium text-slate-900">AC Servicing</h4>
-                <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-md">In Progress</span>
+            <div className="p-5 rounded-2xl border border-indigo-200 bg-indigo-50 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+              <div className="flex justify-between items-start mb-4 pl-2">
+                <div>
+                  <h4 className="font-bold text-indigo-950 text-lg">AC Servicing</h4>
+                  <p className="text-sm text-indigo-700/80 font-medium mt-1">Started 45 mins ago</p>
+                </div>
+                <span className="px-3 py-1 bg-white text-indigo-700 text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm border border-indigo-100">In Progress</span>
               </div>
-              <p className="text-sm text-slate-600 mb-3">Customer: Rahul Sharma • Started 45m ago</p>
-              <div className="w-full bg-slate-200 rounded-full h-1.5 mb-2">
-                <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: '60%' }}></div>
+              <div className="pl-2 flex items-center justify-between border-t border-indigo-100/50 pt-4 mt-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-indigo-200 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm">V</div>
+                  <span className="text-sm font-bold text-indigo-900">Vidyut Bros</span>
+                </div>
+                <button className="text-indigo-600 font-bold text-sm hover:bg-white px-3 py-1.5 rounded-lg transition-colors">Details</button>
               </div>
-              <p className="text-xs text-slate-500 text-right">Estimated completion: 15 mins</p>
             </div>
           </div>
         </div>
@@ -778,18 +863,71 @@ function MyServicesView() {
 }
 
 function BookingsView() {
+  const [activeTab, setActiveTab] = useState('upcoming');
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Your Bookings</h1>
-        <p className="text-slate-500">Manage your upcoming and past appointments.</p>
-      </div>
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 min-h-[300px] flex flex-col items-center justify-center shadow-sm text-center">
-        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
-          <Calendar className="w-8 h-8 text-slate-400" />
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">Your Bookings</h1>
+          <p className="text-slate-500 text-lg">Manage your upcoming and past appointments.</p>
         </div>
-        <h3 className="text-xl font-medium text-slate-900">No active bookings</h3>
-        <p className="text-slate-500 text-sm mt-2 max-w-sm">You haven't booked any services yet. Head over to the home page to explore available providers.</p>
+        <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+          <Plus className="w-5 h-5" /> New Booking
+        </button>
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+        <div className="flex border-b border-slate-200">
+          {['upcoming', 'past', 'cancelled'].map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-5 text-center font-bold text-sm sm:text-base capitalize border-b-2 transition-colors ${activeTab === tab ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50' : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}>
+              {tab}
+            </button>
+          ))}
+        </div>
+        
+        <div className="p-8">
+          {activeTab === 'upcoming' ? (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 bg-indigo-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6 transform rotate-3">
+                <Calendar className="w-12 h-12 text-indigo-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">No active bookings</h3>
+              <p className="text-slate-500 text-lg max-w-sm mx-auto mb-8">You haven't booked any services yet. Explore our top-rated professionals to get started.</p>
+              <button className="bg-slate-900 text-white font-bold py-4 px-8 rounded-xl shadow-md hover:bg-slate-800 transition-colors">Explore Services</button>
+            </div>
+          ) : activeTab === 'past' ? (
+            <div className="space-y-4">
+              {[
+                { service: 'Deep Home Cleaning', provider: 'Priya Singh', date: 'Sep 24, 2026', price: '₹1,200', rating: 5, icon: Sparkles },
+                { service: 'AC Repair & Maintenance', provider: 'Amit Patel', date: 'Aug 12, 2026', price: '₹650', rating: 4, icon: AirVent }
+              ].map((b, i) => (
+                <div key={i} className="border border-slate-200 rounded-2xl p-6 hover:border-indigo-300 hover:shadow-md transition-all bg-white group cursor-pointer flex flex-col sm:flex-row gap-6">
+                  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 border border-slate-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
+                    <b.icon className="w-8 h-8 text-slate-400 group-hover:text-indigo-500" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-bold text-xl text-slate-900">{b.service}</h4>
+                      <span className="bg-emerald-100 text-emerald-700 text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full">Completed</span>
+                    </div>
+                    <p className="text-slate-500 flex items-center gap-2 mb-4 font-medium"><User className="w-4 h-4"/> {b.provider} <span className="text-slate-300">•</span> <Calendar className="w-4 h-4"/> {b.date}</p>
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                      <p className="font-black text-slate-900 text-lg">{b.price}</p>
+                      <div className="flex items-center gap-3">
+                        <button className="text-indigo-600 font-bold text-sm hover:underline px-2 py-1">View Invoice</button>
+                        <button className="bg-indigo-50 text-indigo-700 font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-indigo-100 transition-colors">Rebook</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+               <p className="text-lg text-slate-500 font-medium">No cancelled bookings in your history.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -797,22 +935,42 @@ function BookingsView() {
 
 function RequirementsView() {
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">My Requirements</h1>
-          <p className="text-slate-500">Track and manage your custom service requests.</p>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">My Requirements</h1>
+          <p className="text-slate-500 text-lg">Track and manage your custom service requests.</p>
         </div>
-        <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm">
-          Post Requirement
+        <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+          <FileText className="w-5 h-5" /> Post Requirement
         </button>
       </div>
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 min-h-[300px] flex flex-col items-center justify-center shadow-sm text-center">
-        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
-          <FileText className="w-8 h-8 text-slate-400" />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white border border-slate-200 rounded-3xl p-12 flex flex-col items-center justify-center shadow-sm text-center min-h-[400px]">
+            <div className="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center mb-6 border border-slate-100 shadow-inner transform -rotate-3">
+              <FileText className="w-12 h-12 text-slate-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-3">No requirements posted</h3>
+            <p className="text-slate-500 text-lg max-w-md mx-auto mb-8 leading-relaxed">Can't find exactly what you need? Post a custom requirement detailing your task, and let relevant professionals reach out to you with quotes.</p>
+            <button className="bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-md">Create Your First Post</button>
+          </div>
         </div>
-        <h3 className="text-xl font-medium text-slate-900">No requirements posted</h3>
-        <p className="text-slate-500 text-sm mt-2 max-w-sm">Can't find exactly what you need? Post a custom requirement and let providers come to you.</p>
+
+        <div className="space-y-6">
+          <div className="bg-gradient-to-br from-indigo-900 to-indigo-800 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-6 opacity-10"><Zap className="w-32 h-32" /></div>
+             <div className="relative z-10">
+               <h3 className="text-xl font-bold mb-3 text-indigo-50">How it works?</h3>
+               <ul className="space-y-4">
+                 <li className="flex gap-3 text-indigo-100"><div className="w-6 h-6 rounded-full bg-indigo-700 font-bold flex items-center justify-center shrink-0 text-sm">1</div> Post your custom task details and budget.</li>
+                 <li className="flex gap-3 text-indigo-100"><div className="w-6 h-6 rounded-full bg-indigo-700 font-bold flex items-center justify-center shrink-0 text-sm">2</div> Get quotes from verified professionals.</li>
+                 <li className="flex gap-3 text-indigo-100"><div className="w-6 h-6 rounded-full bg-indigo-700 font-bold flex items-center justify-center shrink-0 text-sm">3</div> Compare, chat, and hire the best fit.</li>
+               </ul>
+             </div>
+          </div>
+        </div>
       </div>
     </div>
   );

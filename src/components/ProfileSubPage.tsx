@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { auth, db } from '../lib/firebase';
 import { ref, update } from 'firebase/database';
 import { 
-  ChevronLeft, Wallet, ClipboardList, Smartphone, Headphones, 
+  ChevronLeft, Calendar, Wallet, ClipboardList, Smartphone, Headphones, 
   Star, MapPin, CreditCard, Ticket, Info, FileText,
   Clock, CheckCircle, XCircle, Search, Shield, ChevronRight, Monitor, LogOut, ArrowRight, Zap, Gift,
   MessageCircle, Mail, Phone, Lock, EyeOff, Bell, UserX, Download, AlertTriangle, Plus
