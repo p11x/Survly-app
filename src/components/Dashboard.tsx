@@ -5,7 +5,7 @@ import {
   Wrench, Zap, Sparkles, Plus, Clock, Car, Settings, Scissors, MoreHorizontal,
   Home, Calendar, FileText, User, Users, LogOut, CheckCircle, ChevronRight, ChevronLeft, Loader2, ShoppingCart, ChevronDown, CircleUser,
   AirVent, Package, Siren, MessageSquare, Briefcase, ClipboardList, Smartphone, Headphones, Wallet, Ticket, CreditCard, Info
-} from 'lucide-react';
+, XCircle, Gift, Share2, Copy } from 'lucide-react';
 import { services, providers } from '../data';
 import { Role } from '../types';
 import { auth, db } from '../lib/firebase';
@@ -210,6 +210,8 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
               {activeTab === 'messages' && <MessagesView />}
               {activeTab === 'req' && <RequirementsView />}
               {activeTab === 'profile' && <ProfileView role={role} onLogout={onLogout} />}
+              {activeTab === 'refer' && <ReferPage />}
+              {activeTab !== 'refer' && activeTab !== 'location' && <ReferAndEarnBanner onClick={() => setActiveTab('refer')} />}
               {activeTab === 'location' && (
                 <LocationView 
                   current={location} 
@@ -534,11 +536,478 @@ function UserDashboardView({ activeCategory, setActiveCategory, searchQuery, set
 
       <AppServiceAdvantages />
 
-      <ProviderDetailsModal 
-        provider={selectedProvider} 
-        isOpen={!!selectedProvider} 
-        onClose={() => setSelectedProvider(null)} 
+      
+    </div>
+  );
+}
+function LocationView({ current, onSelect, onCancel }: { current: string, onSelect: (loc: string) => void, onCancel: () => void }) {
+  const [search, setSearch] = useState('');
+  const popularCities = ['Mumbai, MH', 'Delhi, DL', 'Bengaluru, KA', 'Hyderabad, TS', 'Chennai, TN', 'Pune, MH'];
+  
+  return (
+    <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div className="flex items-center gap-4 border-b border-slate-200 pb-4">
+        <button onClick={onCancel} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+          <ChevronLeft className="w-6 h-6 text-slate-600" />
+        </button>
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">Select Location</h2>
+          <p className="text-slate-500">Choose your city to find services nearby</p>
+        </div>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+        <input 
+          type="text" 
+          placeholder="Search for your city..." 
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm"
+        />
+      </div>
+
+      <button className="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-colors">
+        <MapPin className="w-5 h-5" /> Use my current location
+      </button>
+
+      <div className="space-y-4 pt-4">
+        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Popular Cities</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {popularCities.map(city => (
+            <button 
+              key={city}
+              onClick={() => onSelect(city)}
+              className={`p-4 rounded-xl border text-sm font-bold transition-all ${current === city ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:shadow-sm'}`}
+            >
+              {city}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+function BeautyServicesSection({ onSelectSubService }: { onSelectSubService?: (sub: {title: string, image: string, badge?: string}) => void }) {
+  return (
+    <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="space-y-8 relative z-10">
+        <h2 className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight">Beauty services at your<br/><span className="text-indigo-600">doorstep</span></h2>
+        <div className="border border-slate-200 rounded-[2rem] p-8 bg-white/80 backdrop-blur-xl shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
+          <div className="grid grid-cols-3 gap-y-8 gap-x-4 relative z-10">
+            <ServiceIcon title="Salon for Women" image="https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Salon for Women", image: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Spa for Women" image="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=150&auto=format&fit=crop&q=60" badge="44 mins" onClick={() => onSelectSubService?.({title: "Spa for Women", image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&auto=format&fit=crop&q=80", badge: "44 mins"})} />
+            <ServiceIcon title="Hair Studio for Women" image="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Hair Studio for Women", image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Makeup, Saree & Styling" image="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Makeup, Saree & Styling", image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Salon Royale" image="https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Salon Royale", image: "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Massage for Men" image="https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=150&auto=format&fit=crop&q=60" badge="44 mins" onClick={() => onSelectSubService?.({title: "Massage for Men", image: "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=800&auto=format&fit=crop&q=80", badge: "44 mins"})} />
+            <ServiceIcon title="Hair cut for men" image="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Hair cut for men", image: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Bridal Packages" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/PreBridalPackages.webp?alt=media&token=11dfa8c8-170d-4531-b2ab-d520c37cd526" onClick={() => onSelectSubService?.({title: "Bridal Packages", image: "https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/PreBridalPackages.webp?alt=media&token=11dfa8c8-170d-4531-b2ab-d520c37cd526"})} />
+            <ServiceIcon title="Skin Care Clinic" image="https://images.unsplash.com/photo-1552693673-1bf958298935?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Skin Care Clinic", image: "https://images.unsplash.com/photo-1552693673-1bf958298935?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Yoga & Meditation classes" image="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Yoga & Meditation classes", image: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Therapy & Counseling" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/young-indian-man-consulting-with-professional-psychologist-sitting-indoor.webp?alt=media&token=cc681791-ac1e-4d72-9ff7-e99139a6cd88" onClick={() => onSelectSubService?.({title: "Therapy & Counseling", image: "https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/young-indian-man-consulting-with-professional-psychologist-sitting-indoor.webp?alt=media&token=cc681791-ac1e-4d72-9ff7-e99139a6cd88"})} />
+            <ServiceIcon title="Tattoo & Piercing" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/photo-1565058379802-bbe93b2f703a.webp?alt=media&token=48bdd05b-f0e5-4be3-8b30-adabd96b3d0d" onClick={() => onSelectSubService?.({title: "Tattoo & Piercing", image: "https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/photo-1565058379802-bbe93b2f703a.webp?alt=media&token=48bdd05b-f0e5-4be3-8b30-adabd96b3d0d"})} />
+            <ServiceIcon title="Ayurveda & Alternative Medicine" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/ayurveda-20938663.webp?alt=media&token=bf303e5c-6fbc-4cc8-822e-c90ba3853914" onClick={() => onSelectSubService?.({title: "Ayurveda & Alternative Medicine", image: "https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/ayurveda-20938663.webp?alt=media&token=bf303e5c-6fbc-4cc8-822e-c90ba3853914"})} />
+          </div>
+        </div>
+        <div className="flex items-center gap-12 pt-4">
+          <div className="flex items-center gap-4">
+            <Star className="w-8 h-8 text-indigo-500" />
+            <div>
+              <div className="text-2xl font-black text-slate-900">4.9/5</div>
+              <div className="text-sm font-bold text-slate-500 uppercase tracking-widest">Average Rating</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <SectionVisuals 
+        images={[
+          "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80",
+          "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800&q=80"
+        ]}
+        badge="Premium Care"
+        stats={{ value1: "100%", label1: "Verified Experts", value2: "4.9/5", label2: "Average Rating" }}
       />
+    </div>
+  );
+}
+
+function VehicleCareSection({ onSelectSubService }: { onSelectSubService?: (sub: {title: string, image: string, badge?: string}) => void }) {
+  return (
+    <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="space-y-8 relative z-10">
+        <h2 className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight">Vehicle care at your<br/><span className="text-indigo-600">doorstep</span></h2>
+        <div className="border border-slate-200 rounded-[2rem] p-8 bg-white/80 backdrop-blur-xl shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
+          <div className="grid grid-cols-3 gap-y-8 gap-x-4 relative z-10">
+            <ServiceIcon title="Car Cleaning" image="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Car Cleaning", image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Bike Service" image="https://images.unsplash.com/photo-1589716806898-052ab65551bd?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Bike Service", image: "https://images.unsplash.com/photo-1589716806898-052ab65551bd?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Car oil service" image="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Car oil service", image: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Vehicle inspection" image="https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Vehicle inspection", image: "https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Brake inspection & service" image="https://images.unsplash.com/photo-1558522195-e1201b090344?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Brake inspection & service", image: "https://images.unsplash.com/photo-1558522195-e1201b090344?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Roadside assistance" image="https://images.unsplash.com/photo-1519643381401-22c77e60520e?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Roadside assistance", image: "https://images.unsplash.com/photo-1519643381401-22c77e60520e?w=800&auto=format&fit=crop&q=80"})} />
+          </div>
+        </div>
+      </div>
+      <SectionVisuals 
+        images={[
+          "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=800&q=80",
+          "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800&q=80"
+        ]}
+        badge="Expert Mechanics"
+        stats={{ value1: "30 Min", label1: "Response Time", value2: "10k+", label2: "Vehicles Serviced" }}
+      />
+    </div>
+  );
+}
+
+function HomeServicesSection({ onSelectSubService }: { onSelectSubService?: (sub: {title: string, image: string, badge?: string}) => void }) {
+  return (
+    <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="space-y-8 relative z-10">
+        <h2 className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight">Home services at your<br/><span className="text-indigo-600">doorstep</span></h2>
+        <div className="border border-slate-200 rounded-[2rem] p-8 bg-white/80 backdrop-blur-xl shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
+          <div className="grid grid-cols-3 gap-y-8 gap-x-4 relative z-10">
+            <ServiceIcon title="Visit & inspection" image="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Visit & inspection", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Tap or minor leak repair" image="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=150&auto=format&fit=crop&q=60" badge="30 mins" onClick={() => onSelectSubService?.({title: "Tap or minor leak repair", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&auto=format&fit=crop&q=80", badge: "30 mins"})} />
+            <ServiceIcon title="Toilet repair" image="https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Toilet repair", image: "https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Pipe blockage removal" image="https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Pipe blockage removal", image: "https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Bathroom fitting installation" image="https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Bathroom fitting installation", image: "https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Switchboard repair" image="https://images.unsplash.com/photo-1558522195-e1201b090344?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Switchboard repair", image: "https://images.unsplash.com/photo-1558522195-e1201b090344?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Fan installation" image="https://images.unsplash.com/photo-1519643381401-22c77e60520e?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Fan installation", image: "https://images.unsplash.com/photo-1519643381401-22c77e60520e?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Wiring replacement" image="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=150&auto=format&fit=crop&q=60" badge="60 mins" onClick={() => onSelectSubService?.({title: "Wiring replacement", image: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800&auto=format&fit=crop&q=80", badge: "60 mins"})} />
+            <ServiceIcon title="1 BHK Deep Cleaning" image="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "1 BHK Deep Cleaning", image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="2 BHK Deep Cleaning" image="https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "2 BHK Deep Cleaning", image: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Sofa Cleaning" image="https://images.unsplash.com/photo-1558211583-d26f610c1eb1?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Sofa Cleaning", image: "https://images.unsplash.com/photo-1558211583-d26f610c1eb1?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Bathroom Cleaning" image="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Bathroom Cleaning", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Drain Jetting" image="https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Drain Jetting", image: "https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Geyser/Water Heater Installation & Repair" image="https://images.unsplash.com/photo-1585772391269-897c9b0e2586?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Geyser/Water Heater Installation & Repair", image: "https://images.unsplash.com/photo-1585772391269-897c9b0e2586?w=800&auto=format&fit=crop&q=80"})} />
+            <ServiceIcon title="Painting & Wall Putty" image="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=150&auto=format&fit=crop&q=60" onClick={() => onSelectSubService?.({title: "Painting & Wall Putty", image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&auto=format&fit=crop&q=80"})} />
+          </div>
+        </div>
+        <div className="flex items-center gap-12 pt-4">
+          <div className="flex items-center gap-4">
+            <CheckCircle className="w-8 h-8 text-emerald-500" />
+            <div>
+              <div className="text-2xl font-black text-slate-900">1M+</div>
+              <div className="text-sm font-bold text-slate-500 uppercase tracking-widest">Happy Homes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <SectionVisuals 
+        images={[
+          "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&q=80",
+          "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80"
+        ]}
+        badge="Trusted Pros"
+        stats={{ value1: "1M+", label1: "Happy Homes", value2: "₹1Cr", label2: "Insurance Cover" }}
+      />
+    </div>
+  );
+}
+
+
+function MyPlansView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors font-medium px-4 md:px-0">
+        <ChevronLeft className="w-5 h-5" /> Back to Profile
+      </button>
+
+      <div className="bg-white border border-slate-200 rounded-[2rem] p-8 md:p-14 shadow-sm text-center">
+        <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Survly <span className="text-violet-600">Plus</span></h2>
+        <p className="text-slate-500 max-w-xl mx-auto mb-12">
+          Get exclusive benefits, priority support, and save up to ₹5000 a year.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-3xl mx-auto">
+          {/* Basic Card */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-8 flex flex-col">
+            <h3 className="text-lg font-bold text-slate-900">Basic</h3>
+            <p className="text-slate-500 text-sm mb-6">Standard account</p>
+            <div className="text-4xl font-black text-slate-900 mb-8">Free</div>
+            
+            <div className="space-y-4 mb-8 flex-grow">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+                <span className="text-slate-700">Verified professionals</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+                <span className="text-slate-700">Standard pricing</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+                <span className="text-slate-700">Basic support</span>
+              </div>
+              <div className="flex items-center gap-3 opacity-60">
+                <XCircle className="w-5 h-5 text-slate-400 shrink-0" />
+                <span className="text-slate-500">No priority booking</span>
+              </div>
+              <div className="flex items-center gap-3 opacity-60">
+                <XCircle className="w-5 h-5 text-slate-400 shrink-0" />
+                <span className="text-slate-500">Standard cancellation fees</span>
+              </div>
+            </div>
+
+            <button className="w-full py-4 rounded-xl font-bold bg-slate-50 text-slate-500 border border-slate-200 cursor-default">
+              Current Plan
+            </button>
+          </div>
+
+          {/* Plus Card */}
+          <div className="bg-slate-50/50 border-[3px] border-violet-500 rounded-3xl p-8 flex flex-col relative shadow-[0_0_40px_rgba(139,92,246,0.15)]">
+            <div className="absolute -top-[14px] right-8 bg-gradient-to-r from-violet-600 to-purple-500 text-white px-4 py-1 rounded-full text-xs font-bold tracking-wider shadow-sm">
+              MOST POPULAR
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Plus</h3>
+            <p className="text-violet-600 text-sm mb-6">For regular users</p>
+            <div className="flex items-end gap-1 mb-2">
+              <div className="text-4xl font-black text-slate-900">₹299</div>
+              <div className="text-slate-500 font-medium mb-1">/mo</div>
+            </div>
+            <p className="text-emerald-600 text-sm font-bold mb-8">Save 20% on yearly billing</p>
+            
+            <div className="space-y-4 mb-8 flex-grow">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-violet-600 shrink-0" />
+                <span className="text-slate-700">10% off on all services</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-violet-600 shrink-0" />
+                <span className="text-slate-700">Priority customer support</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-violet-600 shrink-0" />
+                <span className="text-slate-700">Zero cancellation fees</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-violet-600 shrink-0" />
+                <span className="text-slate-700">Top-rated pros guarantee</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-violet-600 shrink-0" />
+                <span className="text-slate-700">Exclusive partner offers</span>
+              </div>
+            </div>
+
+            <button className="w-full py-4 rounded-xl font-bold bg-gradient-to-r from-violet-600 to-purple-500 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
+              Upgrade to Plus
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PlaceholderView({ title, onBack }: { title: string, onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors font-medium px-4 md:px-0">
+        <ChevronLeft className="w-5 h-5" /> Back to Profile
+      </button>
+
+      <div className="bg-white border border-slate-200 rounded-[2rem] p-16 shadow-sm flex flex-col items-center justify-center text-center h-[50vh]">
+        <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 mb-6">
+          <Settings className="w-10 h-10" />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">{title}</h2>
+        <p className="text-slate-500 max-w-md">
+          This section is currently being updated to meet our stunning and enterprise-grade aesthetic standards. Check back soon!
+        </p>
+      </div>
+    </div>
+  );
+}
+
+
+
+function ProfileView({ role, onLogout }: any) {
+  const [profile, setProfile] = useState({ name: 'Pavan Teja K', email: '', phone: '9885112379', location: 'Mumbai, MH' });
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('main');
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (auth.currentUser) {
+        try {
+          const userRef = ref(db, `users/${auth.currentUser.uid}`);
+          const snapshot = await get(userRef);
+          if (snapshot.exists()) {
+            setProfile(snapshot.val());
+          }
+        } catch (error) {
+          console.error("Error fetching profile", error);
+        }
+      }
+      setLoading(false);
+    };
+    fetchProfile();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  const getInitials = (name: string) => name ? name.charAt(0).toUpperCase() : 'U';
+
+  if (activeTab === 'plans') {
+    return <MyPlansView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab !== 'main') {
+    return <PlaceholderView title={activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace(/([A-Z])/g, ' $1').trim()} onBack={() => setActiveTab('main')} />;
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8">
+      
+      {/* Header Profile Info */}
+      <div className="flex items-center gap-6 px-4">
+        <div className="w-24 h-24 bg-indigo-100/80 text-indigo-700 rounded-full flex items-center justify-center text-4xl font-bold shrink-0 shadow-sm border border-indigo-50">
+          {getInitials(profile.name)}
+        </div>
+        <div>
+          <h1 className="text-[1.75rem] font-bold text-slate-900">{profile.name || 'User'}</h1>
+          <p className="text-slate-500 text-sm mt-1">{profile.phone || 'Phone not added'}</p>
+        </div>
+      </div>
+
+      {/* Quick Action Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <button onClick={() => setActiveTab('My Bookings')} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-start gap-4 hover:border-indigo-300 hover:shadow-md transition-all text-left">
+          <ClipboardList className="w-6 h-6 text-slate-700" strokeWidth={1.5} />
+          <span className="font-semibold text-slate-900">My bookings</span>
+        </button>
+        <button onClick={() => setActiveTab('Native Devices')} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-start gap-4 hover:border-indigo-300 hover:shadow-md transition-all text-left">
+          <Smartphone className="w-6 h-6 text-slate-700" strokeWidth={1.5} />
+          <span className="font-semibold text-slate-900">Native devices</span>
+        </button>
+        <button onClick={() => setActiveTab('Help & Support')} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-start gap-4 hover:border-indigo-300 hover:shadow-md transition-all text-left">
+          <Headphones className="w-6 h-6 text-slate-700" strokeWidth={1.5} />
+          <span className="font-semibold text-slate-900">Help & support</span>
+        </button>
+      </div>
+
+      {/* Menu List */}
+      <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+        <MenuListItem icon={FileText} title="My Plans" onClick={() => setActiveTab('plans')} />
+        <MenuListItem icon={Wallet} title="Wallet" onClick={() => setActiveTab('Wallet')} />
+        <MenuListItem icon={Ticket} title="Passes & membership" onClick={() => setActiveTab('Passes & Membership')} />
+        <MenuListItem icon={Star} title="My rating" onClick={() => setActiveTab('My Rating')} />
+        <MenuListItem icon={MapPin} title="Manage addresses" onClick={() => setActiveTab('Manage Addresses')} />
+        <MenuListItem icon={CreditCard} title="Manage payment methods" onClick={() => setActiveTab('Manage Payment Methods')} />
+        <MenuListItem icon={Settings} title="Settings" onClick={() => setActiveTab('Settings')} />
+        <MenuListItem icon={Info} title="About Survly" isLast={true} onClick={() => setActiveTab('About Survly')} />
+      </div>
+
+    </div>
+  );
+}
+
+
+function MenuListItem({ icon: Icon, title, isLast = false, onClick }: any) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`w-full flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition-colors ${!isLast ? 'border-b border-slate-100' : ''}`}
+    >
+      <div className="flex items-center gap-4">
+        <Icon className="w-[18px] h-[18px] text-slate-600" strokeWidth={1.5} />
+        <span className="font-medium text-slate-700 text-[15px]">{title}</span>
+      </div>
+      <ChevronRight className="w-5 h-5 text-slate-400" strokeWidth={1.5} />
+    </button>
+  );
+}
+
+function StatCard({ title, value, trend }: any) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-md hover:border-indigo-200 transition-all shadow-sm">
+       <p className="text-slate-500 uppercase tracking-widest text-xs font-semibold">{title}</p>
+       <div className="flex items-end justify-between mt-4">
+          <h3 className="text-3xl font-bold text-slate-900">{value}</h3>
+          <span className="text-indigo-600 text-sm font-medium">{trend}</span>
+       </div>
+    </div>
+  );
+}
+
+
+function SectionVisuals({ images, badge, stats }: any) {
+  return (
+    <div className="relative h-[600px] w-full hidden lg:block">
+       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-50/50 rounded-full blur-[100px] -z-10"></div>
+
+       <motion.div
+         initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+         whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+         viewport={{ once: true, margin: "-100px" }}
+         transition={{ duration: 0.7 }}
+         className="absolute top-8 right-8 w-[75%] h-[70%] rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(8,_112,_184,_0.15)] border-[8px] border-white z-10"
+       >
+         <img src={images[0]} alt="Showcase" className="w-full h-full object-cover" />
+         <div className="absolute inset-0 bg-gradient-to-tr from-indigo-900/20 to-transparent"></div>
+       </motion.div>
+
+       <motion.div
+         initial={{ opacity: 0, x: -50, rotate: 2 }}
+         whileInView={{ opacity: 1, x: 0, rotate: -4 }}
+         viewport={{ once: true, margin: "-100px" }}
+         transition={{ duration: 0.7, delay: 0.2 }}
+         className="absolute bottom-12 left-0 w-[60%] h-[55%] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(8,_112,_184,_0.15)] border-[8px] border-white z-20"
+       >
+         <img src={images[1]} alt="Showcase 2" className="w-full h-full object-cover" />
+       </motion.div>
+
+       <motion.div
+         animate={{ y: [0, -12, 0] }}
+         transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+         className="absolute top-20 left-4 bg-white/90 backdrop-blur-md px-6 py-4 rounded-3xl shadow-xl border border-white/50 flex items-center gap-4 z-30"
+       >
+         <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+           <CheckCircle className="w-6 h-6" />
+         </div>
+         <div>
+           <div className="text-xl font-black text-slate-900">{stats.value1}</div>
+           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{stats.label1}</div>
+         </div>
+       </motion.div>
+
+       <motion.div
+         animate={{ y: [0, 12, 0] }}
+         transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: 1 }}
+         className="absolute bottom-28 right-0 bg-white/90 backdrop-blur-md px-6 py-4 rounded-3xl shadow-xl border border-white/50 flex items-center gap-4 z-30"
+       >
+         <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600">
+           <Star className="w-6 h-6 fill-amber-500" />
+         </div>
+         <div>
+           <div className="text-xl font-black text-slate-900">{stats.value2}</div>
+           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{stats.label2}</div>
+         </div>
+       </motion.div>
+
+       <motion.div
+         initial={{ scale: 0 }}
+         whileInView={{ scale: 1 }}
+         viewport={{ once: true }}
+         transition={{ type: "spring", delay: 0.5 }}
+         className="absolute top-[55%] left-[55%] -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white px-6 py-3 rounded-full shadow-2xl font-black tracking-widest uppercase text-sm border-4 border-white z-40"
+       >
+         {badge}
+       </motion.div>
     </div>
   );
 }
@@ -553,42 +1022,293 @@ function AppServiceAdvantages() {
             <h3 className="text-2xl font-semibold text-slate-900 mb-3">Professional installation</h3>
             <p className="text-slate-600 text-lg">Only top technicians trained by Survly.</p>
           </div>
-          <img 
-            src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&auto=format&fit=crop&q=60" 
-            alt="Professional installation" 
-            className="absolute bottom-0 right-0 w-48 h-48 object-cover rounded-tl-3xl transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
-
-        <div className="bg-[#f5f5f5] rounded-2xl p-8 relative overflow-hidden min-h-[320px] flex flex-col justify-between group">
-          <div className="z-10 relative">
-            <h3 className="text-2xl font-semibold text-slate-900 mb-3">24×7 expert support</h3>
-            <p className="text-slate-600 text-lg">Talk to experts who understand the product.</p>
-          </div>
-          <img 
-            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&auto=format&fit=crop&q=60" 
-            alt="Expert support" 
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-48 object-cover rounded-t-full transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
-
-        <div className="bg-[#f5f5f5] rounded-2xl p-8 relative overflow-hidden min-h-[320px] flex flex-col justify-between group">
-          <div className="z-10 relative">
-            <h3 className="text-2xl font-semibold text-slate-900 mb-3">Servicing 14,500+ pin codes</h3>
-            <p className="text-slate-600 text-lg">We never outsource service to locals.</p>
-          </div>
-          <img 
-            src="https://images.unsplash.com/photo-1569336415962-a4bd9f69c07b?w=600&auto=format&fit=crop&q=60" 
-            alt="Servicing locations" 
-            className="absolute bottom-0 right-0 w-48 h-48 object-cover opacity-80 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
-          />
         </div>
       </div>
     </div>
   );
 }
 
+function BookingsView() {
+  const [activeTab, setActiveTab] = useState('upcoming');
+  return (
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">Your Bookings</h1>
+          <p className="text-slate-500 text-lg">Manage your upcoming and past appointments.</p>
+        </div>
+        <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+          <Plus className="w-5 h-5" /> New Booking
+        </button>
+      </div>
 
+      <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+        <div className="flex border-b border-slate-200">
+          {['upcoming', 'past', 'cancelled'].map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-5 text-center font-bold text-sm sm:text-base capitalize border-b-2 transition-colors ${activeTab === tab ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50' : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}>
+              {tab}
+            </button>
+          ))}
+        </div>
+        
+        <div className="p-8">
+          {activeTab === 'upcoming' ? (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 bg-indigo-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6 transform rotate-3">
+                <Calendar className="w-12 h-12 text-indigo-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">No active bookings</h3>
+              <p className="text-slate-500 text-lg max-w-sm mx-auto mb-8">You haven't booked any services yet. Explore our top-rated professionals to get started.</p>
+              <button className="bg-slate-900 text-white font-bold py-4 px-8 rounded-xl shadow-md hover:bg-slate-800 transition-colors">Explore Services</button>
+            </div>
+          ) : activeTab === 'past' ? (
+            <div className="space-y-4">
+              {[
+                { service: 'Deep Home Cleaning', provider: 'Priya Singh', date: 'Sep 24, 2026', price: '₹1,200', rating: 5, icon: Sparkles },
+                { service: 'AC Repair & Maintenance', provider: 'Amit Patel', date: 'Aug 12, 2026', price: '₹650', rating: 4, icon: AirVent }
+              ].map((b, i) => (
+                <div key={i} className="border border-slate-200 rounded-2xl p-6 hover:border-indigo-300 hover:shadow-md transition-all bg-white group cursor-pointer flex flex-col sm:flex-row gap-6">
+                  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 border border-slate-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
+                    <b.icon className="w-8 h-8 text-slate-400 group-hover:text-indigo-500" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-bold text-xl text-slate-900">{b.service}</h4>
+                      <span className="bg-emerald-100 text-emerald-700 text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full">Completed</span>
+                    </div>
+                    <p className="text-slate-500 flex items-center gap-2 mb-4 font-medium"><User className="w-4 h-4"/> {b.provider} <span className="text-slate-300">•</span> <Calendar className="w-4 h-4"/> {b.date}</p>
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                      <p className="font-black text-slate-900 text-lg">{b.price}</p>
+                      <div className="flex items-center gap-3">
+                        <button className="text-indigo-600 font-bold text-sm hover:underline px-2 py-1">View Invoice</button>
+                        <button className="bg-indigo-50 text-indigo-700 font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-indigo-100 transition-colors">Rebook</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+               <p className="text-lg text-slate-500 font-medium">No cancelled bookings in your history.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+function RequirementsView() {
+  return (
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">My Requirements</h1>
+          <p className="text-slate-500 text-lg">Track and manage your custom service requests.</p>
+        </div>
+        <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+          <FileText className="w-5 h-5" /> Post Requirement
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white border border-slate-200 rounded-3xl p-12 flex flex-col items-center justify-center shadow-sm text-center min-h-[400px]">
+            <div className="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center mb-6 border border-slate-100 shadow-inner transform -rotate-3">
+              <FileText className="w-12 h-12 text-slate-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-3">No requirements posted</h3>
+            <p className="text-slate-500 text-lg max-w-md mx-auto mb-8 leading-relaxed">Can't find exactly what you need? Post a custom requirement detailing your task, and let relevant professionals reach out to you with quotes.</p>
+            <button className="bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-md">Create Your First Post</button>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-gradient-to-br from-indigo-900 to-indigo-800 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-6 opacity-10"><Zap className="w-32 h-32" /></div>
+             <div className="relative z-10">
+               <h3 className="text-xl font-bold mb-3 text-indigo-50">How it works?</h3>
+               <ul className="space-y-4">
+                 <li className="flex gap-3 text-indigo-100"><div className="w-6 h-6 rounded-full bg-indigo-700 font-bold flex items-center justify-center shrink-0 text-sm">1</div> Post your custom task details and budget.</li>
+                 <li className="flex gap-3 text-indigo-100"><div className="w-6 h-6 rounded-full bg-indigo-700 font-bold flex items-center justify-center shrink-0 text-sm">2</div> Get quotes from verified professionals.</li>
+                 <li className="flex gap-3 text-indigo-100"><div className="w-6 h-6 rounded-full bg-indigo-700 font-bold flex items-center justify-center shrink-0 text-sm">3</div> Compare, chat, and hire the best fit.</li>
+               </ul>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function MyServicesView() {
+  return (
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">My Services</h1>
+          <p className="text-slate-500 text-lg">Manage your added services and currently running services.</p>
+        </div>
+        <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+          <Plus className="w-5 h-5" /> Add Service
+        </button>
+      </div>
+        
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <div className="bg-white border border-slate-200 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600"><Briefcase className="w-6 h-6" /></div>
+              Added Services
+            </h3>
+            <span className="bg-slate-100 text-slate-600 font-bold px-3 py-1 rounded-full text-sm">2 Active</span>
+          </div>
+          <div className="space-y-4">
+            <div className="p-5 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-center group hover:bg-white hover:border-indigo-200 transition-colors cursor-pointer shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100 group-hover:border-indigo-100 text-indigo-500"><Sparkles className="w-6 h-6"/></div>
+                <div>
+                  <h4 className="font-bold text-slate-900 text-lg">Home Cleaning</h4>
+                  <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">₹499/hr <span className="w-1 h-1 rounded-full bg-slate-300"></span> <Star className="w-3 h-3 text-yellow-400 fill-yellow-400"/> 4.8</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:text-indigo-500 transition-all -translate-x-2 group-hover:translate-x-0" />
+            </div>
+            <div className="p-5 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-center group hover:bg-white hover:border-indigo-200 transition-colors cursor-pointer shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100 group-hover:border-indigo-100 text-indigo-500"><Zap className="w-6 h-6"/></div>
+                <div>
+                  <h4 className="font-bold text-slate-900 text-lg">Electrical Repair</h4>
+                  <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">₹299/hr <span className="w-1 h-1 rounded-full bg-slate-300"></span> <Star className="w-3 h-3 text-yellow-400 fill-yellow-400"/> 4.9</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:text-indigo-500 transition-all -translate-x-2 group-hover:translate-x-0" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600 relative">
+                <Loader2 className="w-6 h-6 animate-spin" />
+                <span className="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full"></span>
+              </div>
+              Running Now
+            </h3>
+          </div>
+          <div className="space-y-4">
+            <div className="p-5 rounded-2xl border border-indigo-200 bg-indigo-50 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+              <div className="flex justify-between items-start mb-4 pl-2">
+                <div>
+                  <h4 className="font-bold text-indigo-950 text-lg">AC Servicing</h4>
+                  <p className="text-sm text-indigo-700/80 font-medium mt-1">Started 45 mins ago</p>
+                </div>
+                <span className="px-3 py-1 bg-white text-indigo-700 text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm border border-indigo-100">In Progress</span>
+              </div>
+              <div className="pl-2 flex items-center justify-between border-t border-indigo-100/50 pt-4 mt-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-indigo-200 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm">V</div>
+                  <span className="text-sm font-bold text-indigo-900">Vidyut Bros</span>
+                </div>
+                <button className="text-indigo-600 font-bold text-sm hover:bg-white px-3 py-1.5 rounded-lg transition-colors">Details</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function AddServiceView() {
+  const [selectedService, setSelectedService] = useState<string | null>(null);
+
+  if (selectedService) {
+    const service = services.find(s => s.id === selectedService);
+    const Icon = iconMap[service?.iconName || 'Settings'];
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-8 duration-300 pb-12">
+        <div className="flex items-center gap-4 border-b border-slate-200 pb-6 pt-4">
+          <button onClick={() => setSelectedService(null)} className="p-3 bg-white border border-slate-200 hover:bg-slate-50 hover:border-indigo-300 rounded-full transition-all shadow-sm group">
+            <ChevronLeft className="w-6 h-6 text-slate-600 group-hover:text-indigo-600 transition-colors" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+              {Icon && <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl"><Icon className="w-8 h-8" /></div>} 
+              Add {service?.name}
+            </h1>
+            <p className="text-slate-500 mt-1">Set your pricing, experience, and availability for {service?.name.toLowerCase()}.</p>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
+          <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setSelectedService(null); }}>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Pricing (per hour)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                      <input type="number" placeholder="499" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-lg font-medium text-slate-900 transition-all hover:border-indigo-300" required />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Experience Level</label>
+                    <select className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-lg font-medium text-slate-900 transition-all hover:border-indigo-300 cursor-pointer appearance-none">
+                       <option>Beginner (0-2 Years)</option>
+                       <option>Intermediate (3-5 Years)</option>
+                       <option>Expert (5+ Years)</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl">
+                  <h4 className="font-bold text-slate-900 mb-4 flex items-center gap-2"><CheckCircle className="w-5 h-5 text-emerald-500"/> Trust & Safety</h4>
+                  <p className="text-sm text-slate-600 mb-4 leading-relaxed">Providing accurate information helps build trust with customers and increases your booking rate.</p>
+                  <ul className="space-y-3 text-sm text-slate-600 font-medium">
+                    <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div> Background checks are required for new services.</li>
+                    <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div> Standard commission rates apply.</li>
+                  </ul>
+                </div>
+             </div>
+             
+             <div className="border-t border-slate-100 pt-8 flex justify-end gap-4">
+               <button type="button" onClick={() => setSelectedService(null)} className="px-8 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">Cancel</button>
+               <button type="submit" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2">
+                 <Sparkles className="w-5 h-5" /> Save & Publish Service
+               </button>
+             </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-black tracking-tight text-slate-900">Add New Service</h1>
+        <p className="text-slate-500 text-lg">Select a category below to list your expertise and start receiving bookings.</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        {services.map(service => {
+          const Icon = iconMap[service.iconName || 'Settings'];
+          return (
+            <div key={service.id} onClick={() => setSelectedService(service.id)} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-400 group transition-all">
+              <div className="w-16 h-16 bg-slate-50 rounded-[1.25rem] flex items-center justify-center mb-4 group-hover:bg-indigo-50 group-hover:scale-110 transition-all border border-slate-100 group-hover:border-indigo-100 shadow-inner">
+                {Icon && <Icon className="w-8 h-8 text-slate-600 group-hover:text-indigo-600 transition-colors" />}
+              </div>
+              <span className="font-bold text-slate-900 mb-1">{service.name}</span>
+              <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-md">Tap to setup</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 function ProviderDashboardView() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
@@ -678,422 +1398,21 @@ function ProviderDashboardView() {
     </div>
   );
 }
-
-function StatCard({ title, value, trend }: any) {
-  return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-md hover:border-indigo-200 transition-all shadow-sm">
-       <p className="text-slate-500 uppercase tracking-widest text-xs font-semibold">{title}</p>
-       <div className="flex items-end justify-between mt-4">
-          <h3 className="text-3xl font-bold text-slate-900">{value}</h3>
-          <span className="text-indigo-600 text-sm font-medium">{trend}</span>
-       </div>
-    </div>
-  );
-}
-
-function AddServiceView() {
-  const [selectedService, setSelectedService] = useState<string | null>(null);
-
-  if (selectedService) {
-    const service = services.find(s => s.id === selectedService);
-    const Icon = iconMap[service?.iconName || 'Settings'];
-    return (
-      <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-8 duration-300 pb-12">
-        <div className="flex items-center gap-4 border-b border-slate-200 pb-6 pt-4">
-          <button onClick={() => setSelectedService(null)} className="p-3 bg-white border border-slate-200 hover:bg-slate-50 hover:border-indigo-300 rounded-full transition-all shadow-sm group">
-            <ChevronLeft className="w-6 h-6 text-slate-600 group-hover:text-indigo-600 transition-colors" />
-          </button>
-          <div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
-              {Icon && <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl"><Icon className="w-8 h-8" /></div>} 
-              Add {service?.name}
-            </h1>
-            <p className="text-slate-500 mt-1">Set your pricing, experience, and availability for {service?.name.toLowerCase()}.</p>
-          </div>
-        </div>
-
-        <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
-          <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setSelectedService(null); }}>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Pricing (per hour)</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
-                      <input type="number" placeholder="499" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-lg font-medium text-slate-900 transition-all hover:border-indigo-300" required />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Experience Level</label>
-                    <select className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-lg font-medium text-slate-900 transition-all hover:border-indigo-300 cursor-pointer appearance-none">
-                       <option>Beginner (0-2 Years)</option>
-                       <option>Intermediate (3-5 Years)</option>
-                       <option>Expert (5+ Years)</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl">
-                  <h4 className="font-bold text-slate-900 mb-4 flex items-center gap-2"><CheckCircle className="w-5 h-5 text-emerald-500"/> Trust & Safety</h4>
-                  <p className="text-sm text-slate-600 mb-4 leading-relaxed">Providing accurate information helps build trust with customers and increases your booking rate.</p>
-                  <ul className="space-y-3 text-sm text-slate-600 font-medium">
-                    <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div> Background checks are required for new services.</li>
-                    <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div> Standard commission rates apply.</li>
-                  </ul>
-                </div>
-             </div>
-             
-             <div className="border-t border-slate-100 pt-8 flex justify-end gap-4">
-               <button type="button" onClick={() => setSelectedService(null)} className="px-8 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">Cancel</button>
-               <button type="submit" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2">
-                 <Sparkles className="w-5 h-5" /> Save & Publish Service
-               </button>
-             </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-black tracking-tight text-slate-900">Add New Service</h1>
-        <p className="text-slate-500 text-lg">Select a category below to list your expertise and start receiving bookings.</p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {services.map(service => {
-          const Icon = iconMap[service.iconName || 'Settings'];
-          return (
-            <div key={service.id} onClick={() => setSelectedService(service.id)} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-400 group transition-all">
-              <div className="w-16 h-16 bg-slate-50 rounded-[1.25rem] flex items-center justify-center mb-4 group-hover:bg-indigo-50 group-hover:scale-110 transition-all border border-slate-100 group-hover:border-indigo-100 shadow-inner">
-                {Icon && <Icon className="w-8 h-8 text-slate-600 group-hover:text-indigo-600 transition-colors" />}
-              </div>
-              <span className="font-bold text-slate-900 mb-1">{service.name}</span>
-              <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-md">Tap to setup</span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function MyServicesView() {
-  return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">My Services</h1>
-          <p className="text-slate-500 text-lg">Manage your added services and currently running services.</p>
-        </div>
-        <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-          <Plus className="w-5 h-5" /> Add Service
-        </button>
-      </div>
-        
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-        <div className="bg-white border border-slate-200 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-              <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600"><Briefcase className="w-6 h-6" /></div>
-              Added Services
-            </h3>
-            <span className="bg-slate-100 text-slate-600 font-bold px-3 py-1 rounded-full text-sm">2 Active</span>
-          </div>
-          <div className="space-y-4">
-            <div className="p-5 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-center group hover:bg-white hover:border-indigo-200 transition-colors cursor-pointer shadow-sm">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100 group-hover:border-indigo-100 text-indigo-500"><Sparkles className="w-6 h-6"/></div>
-                <div>
-                  <h4 className="font-bold text-slate-900 text-lg">Home Cleaning</h4>
-                  <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">₹499/hr <span className="w-1 h-1 rounded-full bg-slate-300"></span> <Star className="w-3 h-3 text-yellow-400 fill-yellow-400"/> 4.8</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:text-indigo-500 transition-all -translate-x-2 group-hover:translate-x-0" />
-            </div>
-            <div className="p-5 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-center group hover:bg-white hover:border-indigo-200 transition-colors cursor-pointer shadow-sm">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100 group-hover:border-indigo-100 text-indigo-500"><Zap className="w-6 h-6"/></div>
-                <div>
-                  <h4 className="font-bold text-slate-900 text-lg">Electrical Repair</h4>
-                  <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-2">₹299/hr <span className="w-1 h-1 rounded-full bg-slate-300"></span> <Star className="w-3 h-3 text-yellow-400 fill-yellow-400"/> 4.9</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:text-indigo-500 transition-all -translate-x-2 group-hover:translate-x-0" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white border border-slate-200 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600 relative">
-                <Loader2 className="w-6 h-6 animate-spin" />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full"></span>
-              </div>
-              Running Now
-            </h3>
-          </div>
-          <div className="space-y-4">
-            <div className="p-5 rounded-2xl border border-indigo-200 bg-indigo-50 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-              <div className="flex justify-between items-start mb-4 pl-2">
-                <div>
-                  <h4 className="font-bold text-indigo-950 text-lg">AC Servicing</h4>
-                  <p className="text-sm text-indigo-700/80 font-medium mt-1">Started 45 mins ago</p>
-                </div>
-                <span className="px-3 py-1 bg-white text-indigo-700 text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm border border-indigo-100">In Progress</span>
-              </div>
-              <div className="pl-2 flex items-center justify-between border-t border-indigo-100/50 pt-4 mt-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-indigo-200 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm">V</div>
-                  <span className="text-sm font-bold text-indigo-900">Vidyut Bros</span>
-                </div>
-                <button className="text-indigo-600 font-bold text-sm hover:bg-white px-3 py-1.5 rounded-lg transition-colors">Details</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function BookingsView() {
-  const [activeTab, setActiveTab] = useState('upcoming');
-  return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Your Bookings</h1>
-          <p className="text-slate-500 text-lg">Manage your upcoming and past appointments.</p>
-        </div>
-        <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-          <Plus className="w-5 h-5" /> New Booking
-        </button>
-      </div>
-
-      <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-        <div className="flex border-b border-slate-200">
-          {['upcoming', 'past', 'cancelled'].map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-5 text-center font-bold text-sm sm:text-base capitalize border-b-2 transition-colors ${activeTab === tab ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50' : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}>
-              {tab}
-            </button>
-          ))}
-        </div>
-        
-        <div className="p-8">
-          {activeTab === 'upcoming' ? (
-            <div className="text-center py-16">
-              <div className="w-24 h-24 bg-indigo-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6 transform rotate-3">
-                <Calendar className="w-12 h-12 text-indigo-400" />
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">No active bookings</h3>
-              <p className="text-slate-500 text-lg max-w-sm mx-auto mb-8">You haven't booked any services yet. Explore our top-rated professionals to get started.</p>
-              <button className="bg-slate-900 text-white font-bold py-4 px-8 rounded-xl shadow-md hover:bg-slate-800 transition-colors">Explore Services</button>
-            </div>
-          ) : activeTab === 'past' ? (
-            <div className="space-y-4">
-              {[
-                { service: 'Deep Home Cleaning', provider: 'Priya Singh', date: 'Sep 24, 2026', price: '₹1,200', rating: 5, icon: Sparkles },
-                { service: 'AC Repair & Maintenance', provider: 'Amit Patel', date: 'Aug 12, 2026', price: '₹650', rating: 4, icon: AirVent }
-              ].map((b, i) => (
-                <div key={i} className="border border-slate-200 rounded-2xl p-6 hover:border-indigo-300 hover:shadow-md transition-all bg-white group cursor-pointer flex flex-col sm:flex-row gap-6">
-                  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 border border-slate-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
-                    <b.icon className="w-8 h-8 text-slate-400 group-hover:text-indigo-500" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-bold text-xl text-slate-900">{b.service}</h4>
-                      <span className="bg-emerald-100 text-emerald-700 text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full">Completed</span>
-                    </div>
-                    <p className="text-slate-500 flex items-center gap-2 mb-4 font-medium"><User className="w-4 h-4"/> {b.provider} <span className="text-slate-300">•</span> <Calendar className="w-4 h-4"/> {b.date}</p>
-                    <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                      <p className="font-black text-slate-900 text-lg">{b.price}</p>
-                      <div className="flex items-center gap-3">
-                        <button className="text-indigo-600 font-bold text-sm hover:underline px-2 py-1">View Invoice</button>
-                        <button className="bg-indigo-50 text-indigo-700 font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-indigo-100 transition-colors">Rebook</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-               <p className="text-lg text-slate-500 font-medium">No cancelled bookings in your history.</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RequirementsView() {
-  return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">My Requirements</h1>
-          <p className="text-slate-500 text-lg">Track and manage your custom service requests.</p>
-        </div>
-        <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-          <FileText className="w-5 h-5" /> Post Requirement
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-12 flex flex-col items-center justify-center shadow-sm text-center min-h-[400px]">
-            <div className="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center mb-6 border border-slate-100 shadow-inner transform -rotate-3">
-              <FileText className="w-12 h-12 text-slate-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-3">No requirements posted</h3>
-            <p className="text-slate-500 text-lg max-w-md mx-auto mb-8 leading-relaxed">Can't find exactly what you need? Post a custom requirement detailing your task, and let relevant professionals reach out to you with quotes.</p>
-            <button className="bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-md">Create Your First Post</button>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="bg-gradient-to-br from-indigo-900 to-indigo-800 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-6 opacity-10"><Zap className="w-32 h-32" /></div>
-             <div className="relative z-10">
-               <h3 className="text-xl font-bold mb-3 text-indigo-50">How it works?</h3>
-               <ul className="space-y-4">
-                 <li className="flex gap-3 text-indigo-100"><div className="w-6 h-6 rounded-full bg-indigo-700 font-bold flex items-center justify-center shrink-0 text-sm">1</div> Post your custom task details and budget.</li>
-                 <li className="flex gap-3 text-indigo-100"><div className="w-6 h-6 rounded-full bg-indigo-700 font-bold flex items-center justify-center shrink-0 text-sm">2</div> Get quotes from verified professionals.</li>
-                 <li className="flex gap-3 text-indigo-100"><div className="w-6 h-6 rounded-full bg-indigo-700 font-bold flex items-center justify-center shrink-0 text-sm">3</div> Compare, chat, and hire the best fit.</li>
-               </ul>
-             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-function ProfileView({ role, onLogout }: any) {
-  const [profile, setProfile] = useState({ name: '', email: '', phone: '', location: 'Mumbai, MH' });
-  const [loading, setLoading] = useState(true);
-  const [currentView, setCurrentView] = useState('main');
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (auth.currentUser) {
-        try {
-          const userRef = ref(db, `users/${auth.currentUser.uid}`);
-          const snapshot = await get(userRef);
-          const data = snapshot.exists() ? snapshot.val() : {};
-          setProfile({
-            name: data.name || auth.currentUser.displayName || '',
-            email: data.email || auth.currentUser.email || '',
-            phone: data.phone || auth.currentUser.phoneNumber || '',
-            location: data.location || 'Mumbai, MH'
-          });
-        } catch (error) {
-          console.error("Error fetching profile:", error);
-        }
-      }
-      setLoading(false);
-    };
-    fetchProfile();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="max-w-3xl mx-auto flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
-
-  if (currentView !== 'main') {
-    return <ProfileSubPage view={currentView} onBack={() => setCurrentView('main')} profile={profile} setProfile={setProfile} />;
-  }
-
-  return (
-    <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
-      <div className="flex items-center gap-6 mb-8 pt-4">
-        <div className="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-2xl font-bold shadow-inner uppercase">
-          {profile.name ? profile.name.charAt(0) : 'U'}
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">{profile.name || 'User Account'}</h2>
-          <p className="text-slate-500">{profile.phone || profile.email}</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
-        <div onClick={() => setCurrentView('bookings')} className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 flex flex-col gap-3 shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-200 transition-all">
-          <ClipboardList className="w-6 h-6 text-slate-700" />
-          <span className="font-semibold text-slate-900 text-sm sm:text-base">My bookings</span>
-        </div>
-        <div onClick={() => setCurrentView('devices')} className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 flex flex-col gap-3 shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-200 transition-all">
-          <Smartphone className="w-6 h-6 text-slate-700" />
-          <span className="font-semibold text-slate-900 text-sm sm:text-base">Native devices</span>
-        </div>
-        <div onClick={() => setCurrentView('support')} className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 flex flex-col gap-3 shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-200 transition-all">
-          <Headphones className="w-6 h-6 text-slate-700" />
-          <span className="font-semibold text-slate-900 text-sm sm:text-base">Help & support</span>
-        </div>
-      </div>
-
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-        <div className="flex flex-col">
-          <ProfileListItem icon={FileText} label="My Plans" onClick={() => setCurrentView('plans')} />
-          <ProfileListItem icon={Wallet} label="Wallet" onClick={() => setCurrentView('wallet')} />
-          <ProfileListItem icon={Ticket} label="Passes & membership" onClick={() => setCurrentView('passes')} />
-          <ProfileListItem icon={Star} label="My rating" onClick={() => setCurrentView('rating')} />
-          <ProfileListItem icon={MapPin} label="Manage addresses" onClick={() => setCurrentView('addresses')} />
-          <ProfileListItem icon={CreditCard} label="Manage payment methods" onClick={() => setCurrentView('payment')} />
-          <ProfileListItem icon={Settings} label="Settings" onClick={() => setCurrentView('settings')} />
-          <ProfileListItem icon={Info} label="About Survly" onClick={() => setCurrentView('about')} />
-        </div>
-      </div>
-
-      <div onClick={() => setCurrentView('refer')} className="bg-gradient-to-r from-purple-50 to-white border border-purple-100 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-4 cursor-pointer hover:shadow-md transition-all">
-        <div>
-          <h3 className="text-xl font-bold text-slate-900">Refer & earn ₹50</h3>
-          <p className="text-slate-600 text-sm mt-1">Get ₹50 when your friend completes their first booking.</p>
-        </div>
-        <img 
-          src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=150&auto=format&fit=crop&q=60" 
-          alt="Gift Box"
-          className="w-16 h-16 object-cover rounded-xl shrink-0 mix-blend-multiply"
-        />
-      </div>
-
-      <div className="pt-6">
-        <button 
-          onClick={onLogout} 
-          className="w-full sm:w-auto bg-white border border-red-200 text-red-600 hover:bg-red-50 font-semibold py-3 px-8 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 mx-auto"
-        >
-          <LogOut className="w-4 h-4" />
-          Log out
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function ProfileListItem({ icon: Icon, label, onClick }: { icon: any, label: string, onClick?: () => void }) {
-  return (
-    <div onClick={onClick} className="flex items-center justify-between p-4 sm:px-6 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors">
-      <div className="flex items-center gap-4">
-        <Icon className="w-5 h-5 text-slate-600" />
-        <span className="text-slate-800 font-medium text-sm sm:text-base">{label}</span>
-      </div>
-      <ChevronRight className="w-5 h-5 text-slate-400" />
-    </div>
-  );
-}
-
 function FilteredProvidersView({ categoryIds, title }: { categoryIds: string[], title: string }) {
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
+  const [selectedSubService, setSelectedSubService] = useState<{title: string, image: string, badge?: string} | null>(null);
   const activeProviders = providers.filter(p => categoryIds.includes(p.serviceId));
+
+  if (selectedSubService) {
+    return (
+      <SubServiceDetailView 
+        subService={selectedSubService} 
+        onBack={() => setSelectedSubService(null)} 
+        providers={activeProviders}
+        onSelectProvider={setSelectedProvider}
+      />
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -1102,25 +1421,30 @@ function FilteredProvidersView({ categoryIds, title }: { categoryIds: string[], 
         <p className="text-slate-500">Find top-rated professionals for {title.toLowerCase()}.</p>
       </div>
 
-      {title === 'Self care' && <BeautyServicesSection />}
-      {title === 'Vehicle care' && <VehicleCareSection />}
-      {title === 'Home services' && <HomeServicesSection />}
+      {title === 'Self care' && <BeautyServicesSection onSelectSubService={setSelectedSubService} />}
+      {title === 'Vehicle care' && <VehicleCareSection onSelectSubService={setSelectedSubService} />}
+      {title === 'Home services' && <HomeServicesSection onSelectSubService={setSelectedSubService} />}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {activeProviders.length > 0 ? (
-          activeProviders.map((provider: any) => (
-            <ProviderCard 
-              key={provider.id} 
-              provider={provider} 
-              onViewDetails={() => setSelectedProvider(provider)}
-            />
-          ))
-        ) : (
-          <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-2xl border border-slate-200 flex flex-col items-center justify-center gap-3 shadow-sm">
-            <Search className="w-8 h-8 text-slate-300" />
-            <p>No providers found for this category.</p>
-          </div>
-        )}
+      <div className="pt-8">
+        <div className="flex items-center gap-3 mb-6">
+          <h3 className="text-2xl font-bold text-slate-900">All {title} Providers</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {activeProviders.length > 0 ? (
+            activeProviders.map((provider: any) => (
+              <ProviderCard 
+                key={provider.id} 
+                provider={provider} 
+                onViewDetails={() => setSelectedProvider(provider)}
+              />
+            ))
+          ) : (
+            <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-2xl border border-slate-200 flex flex-col items-center justify-center gap-3 shadow-sm">
+              <Search className="w-8 h-8 text-slate-300" />
+              <p>No providers found for this category.</p>
+            </div>
+          )}
+        </div>
       </div>
 
       <ProviderDetailsModal 
@@ -1131,386 +1455,174 @@ function FilteredProvidersView({ categoryIds, title }: { categoryIds: string[], 
     </div>
   );
 }
-
-function LocationView({ current, onSelect, onCancel }: { current: string, onSelect: (loc: string) => void, onCancel: () => void }) {
-  const [inputValue, setInputValue] = useState(current);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (inputValue.trim().length < 3) {
-        setSuggestions([]);
-        return;
-      }
-      setIsSearching(true);
-      try {
-        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(inputValue + ", India")}&limit=5`);
-        const data = await res.json();
-        if (data.features) {
-          setSuggestions(data.features.map((f: any) => {
-            const p = f.properties;
-            const parts = [p.name, p.street, p.locality, p.district, p.city || p.town, p.state].filter(Boolean);
-            return { display_name: [...new Set(parts)].join(', ') };
-          }));
-        } else {
-          setSuggestions([]);
-        }
-      } catch (error) {
-        console.error("Error fetching location suggestions:", error);
-      } finally {
-        setIsSearching(false);
-      }
-    };
-
-    const timeoutId = setTimeout(() => {
-      if (showDropdown) {
-        fetchSuggestions();
-      }
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [inputValue, showDropdown]);
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim()) {
-      onSelect(inputValue.trim());
-    }
-  };
-
-  const handleSelectSuggestion = (suggestion: any) => {
-    setInputValue(suggestion.display_name);
-    setShowDropdown(false);
-  };
-
-  const handleGetCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        setIsSearching(true);
-        try {
-          const res = await fetch(`https://photon.komoot.io/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}`);
-          const data = await res.json();
-          if (data && data.features && data.features.length > 0) {
-            const p = data.features[0].properties;
-            const parts = [p.name, p.street, p.locality, p.district, p.city || p.town, p.state].filter(Boolean);
-            setInputValue([...new Set(parts)].join(', '));
-          } else {
-            setInputValue('New Delhi, DL');
-          }
-        } catch (error) {
-           setInputValue('New Delhi, DL');
-        } finally {
-          setIsSearching(false);
-        }
-      }, () => {
-        setInputValue('New Delhi, DL');
-      });
-    } else {
-      setInputValue('New Delhi, DL');
-    }
-  };
-
+function SubServiceDetailView({ subService, onBack, providers, onSelectProvider }: any) {
   return (
-    <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Your Location</h1>
-          <p className="text-slate-500">Set your location to see relevant providers and services nearby.</p>
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-8 duration-300 pb-12">
+      <button onClick={onBack} className="p-3 bg-white border border-slate-200 hover:bg-slate-50 hover:border-indigo-300 rounded-full transition-all shadow-sm group flex items-center gap-2">
+        <ChevronLeft className="w-5 h-5 text-slate-600 group-hover:text-indigo-600 transition-colors" />
+        <span className="font-bold text-slate-600 group-hover:text-indigo-600 transition-colors pr-2">Back</span>
+      </button>
+
+      <div className="bg-white border border-slate-200 rounded-[2rem] overflow-hidden shadow-sm flex flex-col md:flex-row">
+        <div className="md:w-1/2 h-64 md:h-auto relative overflow-hidden">
+          <img src={subService.image.replace(/w=150/, "w=800")} alt={subService.title} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+          {subService.badge && (
+            <div className="absolute top-6 left-6 bg-white px-4 py-1.5 rounded-full shadow-lg text-xs font-black text-emerald-600 tracking-wider uppercase">
+              {subService.badge}
+            </div>
+          )}
+        </div>
+        <div className="p-8 md:w-1/2 flex flex-col justify-center space-y-6">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4 leading-tight">{subService.title}</h1>
+            <p className="text-lg text-slate-500 leading-relaxed">
+              Professional, high-quality {subService.title.toLowerCase()} services provided by verified experts. We ensure complete safety, hygiene, and top-tier service standards at your doorstep.
+            </p>
+          </div>
+          
+          <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl space-y-4">
+            <h4 className="font-bold text-slate-900 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-emerald-500" /> Survly Promise
+            </h4>
+            <ul className="space-y-2 text-sm font-medium text-slate-600">
+              <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Verified Professionals</li>
+              <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> 30-Day Service Guarantee</li>
+              <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Transparent Pricing</li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
-        <form onSubmit={handleSave} className="space-y-6">
-          <div className="space-y-2 relative">
-            <label className="text-sm font-medium text-slate-700">Enter your city, zip code, or address</label>
-            <div className="relative">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500" />
-              <input
-                type="text"
-                autoFocus
-                value={inputValue}
-                onChange={(e) => {
-                  setInputValue(e.target.value);
-                  setShowDropdown(true);
-                }}
-                onFocus={() => setShowDropdown(true)}
-                placeholder="e.g. Indiranagar, Bengaluru"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-12 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all text-lg"
+      <div className="space-y-6 pt-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-2xl font-bold text-slate-900">Available Professionals</h3>
+          <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm font-bold">{providers.length} Available</span>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {providers.length > 0 ? (
+            providers.map((provider: any) => (
+              <ProviderCard 
+                key={provider.id} 
+                provider={provider} 
+                onViewDetails={() => onSelectProvider(provider)}
               />
-              {isSearching && (
-                <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 animate-spin" />
-              )}
+            ))
+          ) : (
+            <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-2xl border border-slate-200 flex flex-col items-center justify-center gap-3 shadow-sm">
+              <Search className="w-8 h-8 text-slate-300" />
+              <p>No providers available right now. Please check back later.</p>
             </div>
-            
-            {showDropdown && suggestions.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
-                <ul className="max-h-60 overflow-y-auto">
-                  {suggestions.map((suggestion, index) => (
-                    <li 
-                      key={index}
-                      onClick={() => handleSelectSuggestion(suggestion)}
-                      className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 flex items-start gap-3"
-                    >
-                      <MapPin className="w-4 h-4 text-slate-400 mt-1 shrink-0" />
-                      <div>
-                        <p className="text-sm font-medium text-slate-900 truncate">{suggestion.display_name.split(',')[0]}</p>
-                        <p className="text-xs text-slate-500 truncate">{suggestion.display_name}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-slate-100 mt-12">
-            <button
-              type="button"
-              onClick={handleGetCurrentLocation}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-semibold py-2.5 px-6 rounded-xl transition-colors"
-            >
-              {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
-              Use Current Location
-            </button>
-            <div className="flex-1"></div>
-            <button
-              type="button"
-              onClick={onCancel}
-              className="w-full sm:w-auto bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold py-2.5 px-6 rounded-xl transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-8 rounded-xl transition-all shadow-sm"
-            >
-              Save Location
-            </button>
-          </div>
-        </form>
+          )}
+        </div>
       </div>
+      
+      <ProviderDetailsModal 
+        provider={providers.find((p:any) => p.id === providers[0]?.id)} // Using selected from parent, this modal should be at parent level. Wait, we can pass down onSelectProvider.
+        isOpen={false} // Will be handled by FilteredProvidersView
+        onClose={() => {}} 
+      />
     </div>
   );
 }
-
-function BeautyServicesSection() {
+function ServiceIcon({ title, image, badge, onClick }: { title: string, image: string, badge?: string, onClick?: () => void }) {
   return (
-    <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-      <div className="space-y-8">
-        <h2 className="text-4xl font-bold text-slate-900 leading-tight">Beauty services at your<br/>doorstep</h2>
-        
-        <div className="border border-slate-200 rounded-3xl p-8 bg-white shadow-sm">
-          <div className="grid grid-cols-3 gap-y-8 gap-x-4">
-            <ServiceIcon title="Salon for Women" image="https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Spa for Women" image="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=150&auto=format&fit=crop&q=60" badge="44 mins" />
-            <ServiceIcon title="Hair Studio for Women" image="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Makeup, Saree & Styling" image="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Salon Royale" image="https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Massage for Men" image="https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=150&auto=format&fit=crop&q=60" badge="44 mins" />
-            <ServiceIcon title="Hair cut for men" image="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Bridal Packages" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/PreBridalPackages.webp?alt=media&token=11dfa8c8-170d-4531-b2ab-d520c37cd526" />
-            <ServiceIcon title="Skin Care Clinic" image="https://images.unsplash.com/photo-1552693673-1bf958298935?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Yoga & Meditation classes" image="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Therapy & Counseling" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/young-indian-man-consulting-with-professional-psychologist-sitting-indoor.webp?alt=media&token=cc681791-ac1e-4d72-9ff7-e99139a6cd88" />
-            <ServiceIcon title="Tattoo & Piercing" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/photo-1565058379802-bbe93b2f703a.webp?alt=media&token=48bdd05b-f0e5-4be3-8b30-adabd96b3d0d" />
-            <ServiceIcon title="Ayurveda & Alternative Medicine" image="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/ayurveda-20938663.webp?alt=media&token=bf303e5c-6fbc-4cc8-822e-c90ba3853914" />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-12 pt-4">
-          <div className="flex items-center gap-4">
-            <Star className="w-8 h-8 text-slate-800" />
-            <div>
-              <div className="text-2xl font-bold text-slate-900">4.8</div>
-              <div className="text-sm text-slate-500">Service Rating*</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Users className="w-8 h-8 text-slate-800" />
-            <div>
-              <div className="text-2xl font-bold text-slate-900">12M+</div>
-              <div className="text-sm text-slate-500">Customers Globally*</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 h-full">
-        <img 
-          src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&auto=format&fit=crop&q=60" 
-          alt="Hair Salon" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-        <img 
-          src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&auto=format&fit=crop&q=60" 
-          alt="Haircut" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-        <img 
-          src="https://images.unsplash.com/photo-1615396899839-c99c121888b0?w=600&auto=format&fit=crop&q=60" 
-          alt="Skin care facial" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-        <img 
-          src="https://images.unsplash.com/photo-1552693673-1bf958298935?w=600&auto=format&fit=crop&q=60" 
-          alt="Skin care products" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-      </div>
-    </div>
-  );
-}
-
-function VehicleCareSection() {
-  return (
-    <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-      <div className="space-y-8">
-        <h2 className="text-4xl font-bold text-slate-900 leading-tight">Vehicle care at your<br/>doorstep</h2>
-        
-        <div className="border border-slate-200 rounded-3xl p-8 bg-white shadow-sm">
-          <div className="grid grid-cols-3 gap-y-8 gap-x-4">
-            <ServiceIcon title="Oil Change" image="https://images.unsplash.com/photo-1626668893632-6f3a4466d22f?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Brake Repair" image="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=150&auto=format&fit=crop&q=60" badge="30 mins" />
-            <ServiceIcon title="Battery Replacement" image="https://images.unsplash.com/photo-1620064916958-605375619af8?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Tire Services" image="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="General Repair" image="https://images.unsplash.com/photo-1504222490345-c075b6008014?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Car Service" image="https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?w=150&auto=format&fit=crop&q=60" badge="60 mins" />
-            <ServiceIcon title="Advanced Mechanical & Fluid Services" image="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Deep Cleaning & Aesthetics" image="https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Electric Vehicle (EV) Services" image="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=150&auto=format&fit=crop&q=60" />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-12 pt-4">
-          <div className="flex items-center gap-4">
-            <Star className="w-8 h-8 text-slate-800" />
-            <div>
-              <div className="text-2xl font-bold text-slate-900">4.9</div>
-              <div className="text-sm text-slate-500">Service Rating*</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Users className="w-8 h-8 text-slate-800" />
-            <div>
-              <div className="text-2xl font-bold text-slate-900">8M+</div>
-              <div className="text-sm text-slate-500">Customers Globally*</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 h-full">
-        <img 
-          src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=600&auto=format&fit=crop&q=60" 
-          alt="Mechanic" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-        <img 
-          src="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&auto=format&fit=crop&q=60" 
-          alt="Car Wash" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-        <img 
-          src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&auto=format&fit=crop&q=60" 
-          alt="Car Driving" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-        <img 
-          src="https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=600&auto=format&fit=crop&q=60" 
-          alt="Engine Repair" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-      </div>
-    </div>
-  );
-}
-
-function HomeServicesSection() {
-  return (
-    <div className="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-      <div className="space-y-8">
-        <h2 className="text-4xl font-bold text-slate-900 leading-tight">Home services at your<br/>doorstep</h2>
-        
-        <div className="border border-slate-200 rounded-3xl p-8 bg-white shadow-sm">
-          <div className="grid grid-cols-3 gap-y-8 gap-x-4">
-            <ServiceIcon title="Visit & inspection" image="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Tap or minor leak repair" image="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=150&auto=format&fit=crop&q=60" badge="30 mins" />
-            <ServiceIcon title="Toilet repair" image="https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Pipe blockage removal" image="https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Bathroom fitting installation" image="https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Switchboard repair" image="https://images.unsplash.com/photo-1558522195-e1201b090344?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Fan installation" image="https://images.unsplash.com/photo-1519643381401-22c77e60520e?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Wiring replacement" image="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=150&auto=format&fit=crop&q=60" badge="60 mins" />
-            <ServiceIcon title="1 BHK Deep Cleaning" image="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="2 BHK Deep Cleaning" image="https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Sofa Cleaning" image="https://images.unsplash.com/photo-1558211583-d26f610c1eb1?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Bathroom Cleaning" image="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Drain Jetting" image="https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Geyser/Water Heater Installation & Repair" image="https://images.unsplash.com/photo-1585772391269-897c9b0e2586?w=150&auto=format&fit=crop&q=60" />
-            <ServiceIcon title="Painting & Wall Putty" image="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=150&auto=format&fit=crop&q=60" />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-12 pt-4">
-          <div className="flex items-center gap-4">
-            <Star className="w-8 h-8 text-slate-800" />
-            <div>
-              <div className="text-2xl font-bold text-slate-900">4.8</div>
-              <div className="text-sm text-slate-500">Service Rating*</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Users className="w-8 h-8 text-slate-800" />
-            <div>
-              <div className="text-2xl font-bold text-slate-900">10M+</div>
-              <div className="text-sm text-slate-500">Customers Globally*</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 h-full">
-        <img 
-          src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&auto=format&fit=crop&q=60" 
-          alt="Cleaning Service" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-        <img 
-          src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&auto=format&fit=crop&q=60" 
-          alt="Electrical Repair" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-        <img 
-          src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600&auto=format&fit=crop&q=60" 
-          alt="Plumbing" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-        <img 
-          src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&auto=format&fit=crop&q=60" 
-          alt="Painting" 
-          className="w-full h-[280px] object-cover rounded-2xl"
-        />
-      </div>
-    </div>
-  );
-}
-
-function ServiceIcon({ title, image, badge }: { title: string, image: string, badge?: string }) {
-  return (
-    <div className="flex flex-col items-center text-center gap-3">
+    <div onClick={onClick} className="flex flex-col items-center text-center gap-3 cursor-pointer group">
       <div className="relative">
-        <div className="w-20 h-16 bg-[#f5f5f5] rounded-xl flex items-center justify-center overflow-hidden">
-          <img src={image} alt={title} className="w-12 h-12 object-cover rounded-lg" />
+        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-[1.25rem] flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm group-hover:border-indigo-300 group-hover:shadow-lg transition-all duration-300">
+          <img src={image} alt={title} className="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl group-hover:scale-110 transition-transform duration-300" />
         </div>
         {badge && (
-          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-2 py-0.5 rounded shadow-sm text-[10px] font-medium text-emerald-600 border border-slate-100 whitespace-nowrap">
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-2 py-0.5 rounded shadow-sm text-[10px] font-bold text-emerald-600 border border-slate-100 whitespace-nowrap z-10">
             {badge}
           </div>
         )}
       </div>
-      <span className="text-xs font-medium text-slate-800 leading-tight px-1">{title}</span>
+      <span className="text-xs sm:text-sm font-bold text-slate-800 leading-tight px-1 group-hover:text-indigo-600 transition-colors">{title}</span>
+    </div>
+  );
+}
+
+
+function ReferAndEarnBanner({ onClick }: { onClick: () => void }) {
+  return (
+    <div 
+      onClick={onClick}
+      className="mt-8 bg-gradient-to-r from-[#F8F5FF] to-white border border-violet-100 rounded-2xl p-5 md:p-6 flex items-center justify-between cursor-pointer hover:shadow-sm hover:border-violet-200 transition-all relative overflow-hidden group max-w-4xl mx-auto"
+    >
+      <div className="relative z-10 pr-20">
+        <h3 className="text-[17px] md:text-lg font-bold text-slate-900 mb-1 group-hover:text-violet-700 transition-colors">Refer & earn ₹50</h3>
+        <p className="text-slate-500 text-[13px] md:text-sm">Get ₹50 when your friend completes their first booking.</p>
+      </div>
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-24 h-24 flex items-center justify-center opacity-90 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+        <img src="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/giftbox.png?alt=media&token=d1f5e8b4-5c9c-4c4f-9e7c-0a1b2c3d4e5f" alt="Gift" className="w-16 h-16 object-contain drop-shadow-md" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<span class="text-6xl">🎁</span>'; }} />
+      </div>
+    </div>
+  );
+}
+
+function ReferPage() {
+  return (
+    <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-4">
+      {/* Page Header */}
+      <div className="text-center mb-10">
+        <div className="w-24 h-24 mx-auto mb-6 relative">
+            <div className="absolute inset-0 bg-violet-100 rounded-full blur-xl opacity-60"></div>
+            <img src="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/giftbox.png?alt=media&token=d1f5e8b4-5c9c-4c4f-9e7c-0a1b2c3d4e5f" alt="Gift" className="w-full h-full object-contain relative z-10 drop-shadow-lg" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<span class="text-6xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">🎁</span>'; }} />
+        </div>
+        <h1 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">Refer & Earn ₹50</h1>
+        <p className="text-slate-500 max-w-sm mx-auto text-[15px]">
+          Invite your friends to Survly. They get <span className="font-bold text-slate-700">₹50 off</span> their first booking, and you get <span className="font-bold text-violet-600">₹50 in your wallet!</span>
+        </p>
+      </div>
+
+      {/* Steps */}
+      <div className="bg-white rounded-[2rem] border border-slate-200 p-8 md:p-10 shadow-sm mb-8">
+        <h3 className="text-xl font-bold text-slate-900 mb-8 text-center">How it works</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 relative">
+          
+          <div className="hidden md:block absolute top-6 left-[16%] right-[16%] h-0.5 bg-slate-100 -z-10"></div>
+          
+          <div className="text-center">
+            <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-sm border border-indigo-100/50">
+              <Share2 className="w-6 h-6" />
+            </div>
+            <h4 className="font-bold text-slate-900 mb-2">1. Share link</h4>
+            <p className="text-sm text-slate-500 px-2">Share your unique referral link with friends.</p>
+          </div>
+          <div className="text-center">
+            <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-sm border border-indigo-100/50">
+              <Users className="w-6 h-6" />
+            </div>
+            <h4 className="font-bold text-slate-900 mb-2">2. Friend books</h4>
+            <p className="text-sm text-slate-500 px-2">Your friend signs up and completes a booking.</p>
+          </div>
+          <div className="text-center">
+            <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-sm border border-indigo-100/50">
+              <Gift className="w-6 h-6" />
+            </div>
+            <h4 className="font-bold text-slate-900 mb-2">3. You both earn</h4>
+            <p className="text-sm text-slate-500 px-2">Both get ₹50 added to your Survly wallets.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Share Section */}
+      <div className="bg-gradient-to-br from-[#F8F5FF] to-white border border-violet-100 rounded-[2rem] p-8 md:p-10 text-center shadow-sm">
+        <h3 className="font-bold text-slate-900 mb-6 text-lg">Your referral code</h3>
+        <div className="flex items-center justify-center gap-3 mb-6 max-w-sm mx-auto">
+          <div className="bg-white border border-slate-200 px-6 py-4 rounded-2xl font-mono text-2xl font-black tracking-widest text-slate-800 shadow-sm w-full">
+            SURVLY50
+          </div>
+          <button className="bg-violet-100 text-violet-600 p-4 rounded-2xl hover:bg-violet-200 hover:text-violet-700 transition-colors shadow-sm shrink-0 border border-violet-200">
+            <Copy className="w-6 h-6" />
+          </button>
+        </div>
+        <button className="w-full max-w-sm mx-auto bg-violet-600 text-white font-bold py-4 rounded-2xl hover:bg-violet-700 transition-colors shadow-md shadow-violet-200 flex items-center justify-center gap-2 text-lg">
+          <Share2 className="w-5 h-5" /> Share with friends
+        </button>
+      </div>
     </div>
   );
 }
