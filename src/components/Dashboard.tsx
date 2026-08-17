@@ -5,11 +5,11 @@ import {
   Wrench, Zap, Sparkles, Plus, Clock, Car, Settings, Scissors, MoreHorizontal,
   Home, Calendar, FileText, User, Users, LogOut, CheckCircle, ChevronRight, ChevronLeft, Loader2, ShoppingCart, ChevronDown, CircleUser,
   AirVent, Package, Siren, MessageSquare, Briefcase, ClipboardList, Smartphone, Headphones, Wallet, Ticket, CreditCard, Info
-, XCircle, Gift, Share2, Copy, TrendingUp, Camera, Shield, Check } from 'lucide-react';
+, XCircle, Gift, Share2, Copy, TrendingUp, Camera, Shield, Check , Banknote} from 'lucide-react';
 import { services, providers, categorySubServices } from '../data';
 import { Role } from '../types';
 import { auth, db } from '../lib/firebase';
-import { ref, get, update } from 'firebase/database';
+import { ref, get, update, onValue } from 'firebase/database';
 import ParticleBackground from './ParticleBackground';
 import Typewriter from './Typewriter';
 import MessagesView from './MessagesView';
@@ -46,6 +46,16 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
   const [activeCategory, setActiveCategory] = useState(services[0].id);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('home');
+  const [chatContext, setChatContext] = useState<any>(null);
+
+  useEffect(() => {
+    const handleOpenChat = (e: any) => {
+      setChatContext(e.detail);
+      setActiveTab('messages');
+    };
+    window.addEventListener('open-chat', handleOpenChat as EventListener);
+    return () => window.removeEventListener('open-chat', handleOpenChat as EventListener);
+  }, []);
   const [location, setLocation] = useState('Mumbai, MH');
   const [isSidebarMinimized, setIsSidebarMinimized] = useState(true);
   const [isLoadingProviders, setIsLoadingProviders] = useState(false);
@@ -207,7 +217,7 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
               {activeTab === 'vehicle_care' && <FilteredProvidersView categoryIds={['vehicle']} title="Vehicle care" />}
               {activeTab === 'self_care' && <FilteredProvidersView categoryIds={['beauty']} title="Self care" />}
               {activeTab === 'bookings' && <BookingsView />}
-              {activeTab === 'messages' && <MessagesView />}
+              {activeTab === 'messages' && <MessagesView initialContext={chatContext} />}
               {activeTab === 'req' && (role?.trim().toLowerCase() === 'provider' ? <UserRequestsView /> : <RequirementsView />)}
               {activeTab === 'profile' && <ProfileView role={role} onLogout={onLogout} />}
               {activeTab === 'refer' && <ReferPage />}
@@ -535,8 +545,11 @@ function UserDashboardView({ activeCategory, setActiveCategory, searchQuery, set
       </motion.div>
 
       <AppServiceAdvantages />
-
-      
+      <ProviderDetailsModal 
+        provider={selectedProvider} 
+        isOpen={!!selectedProvider} 
+        onClose={() => setSelectedProvider(null)} 
+      />
     </div>
   );
 }
@@ -1749,14 +1762,40 @@ function SectionVisuals({ images, badge, stats }: any) {
 
 function AppServiceAdvantages() {
   return (
-    <div className="mt-16 space-y-6">
-      <h2 className="text-3xl font-bold text-slate-900">Survly app service advantages</h2>
+    <div className="mt-20 mb-10 space-y-8 max-w-6xl mx-auto">
+      <div className="text-center space-y-4 max-w-2xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Survly app service advantages</h2>
+        <p className="text-slate-500 text-lg">Experience the best-in-class home services with our trusted professionals.</p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#f5f5f5] rounded-2xl p-8 relative overflow-hidden min-h-[320px] flex flex-col justify-between group">
-          <div className="z-10 relative pr-4">
-            <h3 className="text-2xl font-semibold text-slate-900 mb-3">Professional installation</h3>
-            <p className="text-slate-600 text-lg">Only top technicians trained by Survly.</p>
+        {/* Card 1 */}
+        <div className="bg-white border border-slate-100/60 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_32px_rgba(79,70,229,0.06)] hover:border-indigo-100 rounded-[28px] p-8 relative overflow-hidden flex flex-col group transition-all duration-300">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-indigo-50/80 to-transparent rounded-bl-full -z-10 group-hover:scale-110 transition-transform duration-500"></div>
+          <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 group-hover:-translate-y-1 transition-transform duration-300">
+             <Star className="w-7 h-7" />
           </div>
+          <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">Professional<br/>installation</h3>
+          <p className="text-slate-500 text-[17px] leading-relaxed">Only top technicians trained by Survly are assigned to your tasks.</p>
+        </div>
+        
+        {/* Card 2 */}
+        <div className="bg-white border border-slate-100/60 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_32px_rgba(16,185,129,0.06)] hover:border-emerald-100 rounded-[28px] p-8 relative overflow-hidden flex flex-col group transition-all duration-300">
+           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-50/80 to-transparent rounded-bl-full -z-10 group-hover:scale-110 transition-transform duration-500"></div>
+           <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:-translate-y-1 transition-transform duration-300">
+             <Shield className="w-7 h-7" />
+          </div>
+          <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">Verified<br/>professionals</h3>
+          <p className="text-slate-500 text-[17px] leading-relaxed">100% background verified and highly experienced experts.</p>
+        </div>
+
+        {/* Card 3 */}
+        <div className="bg-white border border-slate-100/60 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_32px_rgba(245,158,11,0.06)] hover:border-amber-100 rounded-[28px] p-8 relative overflow-hidden flex flex-col group transition-all duration-300">
+           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-50/80 to-transparent rounded-bl-full -z-10 group-hover:scale-110 transition-transform duration-500"></div>
+           <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:-translate-y-1 transition-transform duration-300">
+             <Banknote className="w-7 h-7" />
+          </div>
+          <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">Guaranteed<br/>pricing</h3>
+          <p className="text-slate-500 text-[17px] leading-relaxed">No hidden costs. Transparent pricing before you book.</p>
         </div>
       </div>
     </div>
@@ -1765,6 +1804,28 @@ function AppServiceAdvantages() {
 
 function BookingsView() {
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [localBookings, setLocalBookings] = useState<any[]>([]);
+
+  useEffect(() => {
+    const bookingsRef = ref(db, 'bookings');
+    const unsubscribe = onValue(bookingsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const bookingsArray = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key]
+        })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        
+        setLocalBookings(bookingsArray);
+      } else {
+        setLocalBookings([]);
+      }
+    }, (error) => {
+      console.error("Error listening to bookings:", error);
+    });
+
+    return () => unsubscribe();
+  }, [activeTab]);
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1788,14 +1849,41 @@ function BookingsView() {
         
         <div className="p-8">
           {activeTab === 'upcoming' ? (
-            <div className="text-center py-16">
-              <div className="w-24 h-24 bg-indigo-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6 transform rotate-3">
-                <Calendar className="w-12 h-12 text-indigo-400" />
+            localBookings.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="w-24 h-24 bg-indigo-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6 transform rotate-3">
+                  <Calendar className="w-12 h-12 text-indigo-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">No active bookings</h3>
+                <p className="text-slate-500 text-lg max-w-sm mx-auto mb-8">You haven't booked any services yet. Explore our top-rated professionals to get started.</p>
+                <button className="bg-slate-900 text-white font-bold py-4 px-8 rounded-xl shadow-md hover:bg-slate-800 transition-colors">Explore Services</button>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">No active bookings</h3>
-              <p className="text-slate-500 text-lg max-w-sm mx-auto mb-8">You haven't booked any services yet. Explore our top-rated professionals to get started.</p>
-              <button className="bg-slate-900 text-white font-bold py-4 px-8 rounded-xl shadow-md hover:bg-slate-800 transition-colors">Explore Services</button>
-            </div>
+            ) : (
+              <div className="space-y-4">
+                {localBookings.map((b, i) => (
+                  <div key={b.id || i} className="border border-indigo-200 rounded-2xl p-6 hover:shadow-md transition-all bg-indigo-50/30 group cursor-pointer flex flex-col sm:flex-row gap-6">
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100 group-hover:bg-indigo-100 transition-colors">
+                      <Calendar className="w-8 h-8 text-indigo-500" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-bold text-xl text-slate-900">{b.service}</h4>
+                        <span className="bg-amber-100 text-amber-700 text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full">Upcoming</span>
+                      </div>
+                      <p className="text-slate-500 flex items-center gap-2 mb-2 font-medium"><User className="w-4 h-4"/> {b.provider}</p>
+                      <p className="text-slate-500 flex items-center gap-2 mb-4 font-medium"><Clock className="w-4 h-4"/> {b.date} at {b.time}</p>
+                      <div className="flex items-center justify-between pt-4 border-t border-indigo-100">
+                        <p className="font-black text-slate-900 text-lg">{b.price}</p>
+                        <div className="flex items-center gap-3">
+                          <button className="text-rose-600 font-bold text-sm hover:underline px-2 py-1">Cancel</button>
+                          <button className="bg-indigo-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors">View Details</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
           ) : activeTab === 'past' ? (
             <div className="space-y-4">
               {[
@@ -2402,12 +2490,19 @@ function FilteredProvidersView({ categoryIds, title }: { categoryIds: string[], 
 
   if (selectedSubService) {
     return (
-      <SubServiceDetailView 
-        subService={selectedSubService} 
-        onBack={() => setSelectedSubService(null)} 
-        providers={activeProviders}
-        onSelectProvider={setSelectedProvider}
-      />
+      <>
+        <SubServiceDetailView 
+          subService={selectedSubService} 
+          onBack={() => setSelectedSubService(null)} 
+          providers={activeProviders}
+          onSelectProvider={setSelectedProvider}
+        />
+        <ProviderDetailsModal 
+          provider={selectedProvider} 
+          isOpen={!!selectedProvider} 
+          onClose={() => setSelectedProvider(null)} 
+        />
+      </>
     );
   }
 
@@ -2515,11 +2610,7 @@ function SubServiceDetailView({ subService, onBack, providers, onSelectProvider 
         </div>
       </div>
       
-      <ProviderDetailsModal 
-        provider={providers.find((p:any) => p.id === providers[0]?.id)} // Using selected from parent, this modal should be at parent level. Wait, we can pass down onSelectProvider.
-        isOpen={false} // Will be handled by FilteredProvidersView
-        onClose={() => {}} 
-      />
+      
     </div>
   );
 }
@@ -2546,14 +2637,19 @@ function ReferAndEarnBanner({ onClick }: { onClick: () => void }) {
   return (
     <div 
       onClick={onClick}
-      className="mt-6 bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] rounded-[24px] p-6 flex items-center justify-between cursor-pointer hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:border-slate-200 transition-all relative overflow-hidden group max-w-4xl mx-auto"
+      className="mt-12 bg-gradient-to-r from-indigo-50 to-purple-50/50 border border-indigo-100/50 shadow-[0_4px_20px_rgba(0,0,0,0.02)] rounded-[28px] p-8 flex items-center justify-between cursor-pointer hover:shadow-[0_8px_30px_rgba(99,102,241,0.08)] hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group max-w-6xl mx-auto"
     >
+      <div className="absolute inset-0 bg-white/40 group-hover:bg-transparent transition-colors duration-300"></div>
       <div className="relative z-10 pr-20">
-        <h3 className="text-[22px] font-bold text-slate-900 mb-1.5 tracking-tight">Refer & earn ₹50</h3>
-        <p className="text-slate-500 text-[15px]">Get ₹50 when your friend completes their first booking.</p>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100/80 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
+          <Gift className="w-3.5 h-3.5" /> Rewards
+        </div>
+        <h3 className="text-2xl md:text-[28px] font-black text-slate-900 mb-2 tracking-tight">Refer & earn ₹50</h3>
+        <p className="text-slate-600 text-[16px] md:text-lg max-w-md">Get ₹50 directly in your wallet when your friend completes their first booking.</p>
       </div>
-      <div className="absolute right-6 top-1/2 -translate-y-1/2 z-10 w-24 h-24 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-        <img src="https://cdn3d.iconscout.com/3d/premium/thumb/gift-box-4993181-4161820.png" alt="Gift" className="w-full h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span class="text-6xl">🎁</span>'; }} />
+      <div className="absolute -right-4 md:right-8 top-1/2 -translate-y-1/2 z-10 w-32 h-32 md:w-40 md:h-40 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
+        <div className="absolute inset-0 bg-indigo-200 blur-3xl opacity-30 rounded-full"></div>
+        <img src="https://cdn3d.iconscout.com/3d/premium/thumb/gift-box-4993181-4161820.png" alt="Gift" className="w-full h-full object-contain relative drop-shadow-xl" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span class="text-[80px]">🎁</span>'; }} />
       </div>
     </div>
   );

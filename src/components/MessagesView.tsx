@@ -12,9 +12,16 @@ type Message = {
   read?: boolean;
 };
 
-export default function MessagesView() {
-  const [activeChat, setActiveChat] = useState(providers[0].id);
-  const [inputText, setInputText] = useState('');
+export default function MessagesView({ initialContext }: { initialContext?: any }) {
+  const [activeChat, setActiveChat] = useState(initialContext?.providerId || providers[0].id);
+  const [inputText, setInputText] = useState(initialContext?.message || '');
+
+  useEffect(() => {
+    if (initialContext) {
+      if (initialContext.providerId) setActiveChat(initialContext.providerId);
+      if (initialContext.message) setInputText(initialContext.message);
+    }
+  }, [initialContext]);
   const [messages, setMessages] = useState<Record<string, Message[]>>({
     [providers[0].id]: [
       { id: '1', senderId: providers[0].id, text: `Hi there! I saw your plumbing request. I can help with that today.`, timestamp: '10:30 AM', read: true },

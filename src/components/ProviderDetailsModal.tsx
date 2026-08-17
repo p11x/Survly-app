@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Star, Check } from 'lucide-react';
-import { services } from '../data';
+import { X, Star, Check, Square, CheckSquare, MessageCircle, Phone, Mail } from 'lucide-react';
+import { services, categorySubServices } from '../data';
+import BookingFlowModal from './BookingFlowModal';
 
 interface ProviderDetailsModalProps {
   provider: any;
@@ -11,9 +12,12 @@ interface ProviderDetailsModalProps {
 }
 
 export default function ProviderDetailsModal({ provider, isOpen, onClose }: ProviderDetailsModalProps) {
+  const [isBookingOpen, setIsBookingOpen] = React.useState(false);
+  const [selectedServices, setSelectedServices] = React.useState<Set<string>>(new Set());
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      setSelectedServices(new Set());
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -26,10 +30,37 @@ export default function ProviderDetailsModal({ provider, isOpen, onClose }: Prov
 
   const service = services.find(s => s.id === provider.serviceId) || services[0];
   const categoryName = service.name;
-  const basePrice = provider.price.split('/')[0];
+  
+  const subServices = categorySubServices[provider.serviceId] || categorySubServices.plumbing;
+  
+  const getPriceRange = (priceStr: string) => {
+    const basePrice = parseInt(priceStr.replace(/\\D/g, ''));
+    return `₹${currentStartingRate} - ₹${basePrice + 200}`;
+  };
+
+  const calculateStartingRate = () => {
+    if (selectedServices.size === 0) {
+      return `₹${Math.min(...subServices.map(s => parseInt(s.price.replace(/\\D/g, ''))))}`;
+    }
+    const selected = subServices.filter(s => selectedServices.has(s.name));
+    return `₹${Math.min(...selected.map(s => parseInt(s.price.replace(/\\D/g, ''))))}`;
+  };
+
+  const currentStartingRate = calculateStartingRate();
+
+  const toggleService = (serviceName: string) => {
+    const next = new Set(selectedServices);
+    if (next.has(serviceName)) {
+      next.delete(serviceName);
+    } else {
+      next.add(serviceName);
+    }
+    setSelectedServices(next);
+  };
 
   return createPortal(
-    <AnimatePresence>
+    <>
+      <AnimatePresence>
       <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6 sm:px-0">
         {/* Backdrop */}
         <motion.div
@@ -112,6 +143,33 @@ export default function ProviderDetailsModal({ provider, isOpen, onClose }: Prov
               </div>
             </div>
 
+            {/* Contact Section */}
+            <div className="px-8 py-2 flex gap-3">
+              <button 
+                onClick={() => {
+                  onClose();
+                  setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('open-chat', { detail: { providerId: provider.id, message: `Hi ${provider.name}, I'm looking for ${categoryName.toLowerCase()} services.` } }));
+                  }, 300);
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-indigo-50 text-indigo-700 rounded-xl font-bold hover:bg-indigo-100 transition-colors"
+              >
+                <MessageCircle className="w-5 h-5" /> Chat
+              </button>
+              <a 
+                href="tel:+919876543210"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-slate-50 text-slate-700 rounded-xl font-bold hover:bg-slate-100 border border-slate-200 transition-colors"
+              >
+                <Phone className="w-5 h-5" /> Contact
+              </a>
+              <a 
+                href={`mailto:${provider.name.toLowerCase().replace(' ', '')}@example.com?subject=Inquiry for ${categoryName} Service`}
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-slate-50 text-slate-700 rounded-xl font-bold hover:bg-slate-100 border border-slate-200 transition-colors"
+              >
+                <Mail className="w-5 h-5" /> Mail
+              </a>
+            </div>
+
             {/* Pricing Section */}
             <div className="px-8 py-6">
               <h3 className="text-[11px] font-extrabold text-indigo-600 tracking-wider uppercase mb-3">Transparent Pricing</h3>
@@ -121,26 +179,19 @@ export default function ProviderDetailsModal({ provider, isOpen, onClose }: Prov
               </div>
 
               <div className="border border-slate-200 rounded-xl divide-y divide-slate-100 bg-white">
-                <div className="flex justify-between p-4 text-[14px]">
-                  <span className="text-slate-700">Visit & inspection</span>
-                  <span className="font-bold text-indigo-600">₹299</span>
-                </div>
-                <div className="flex justify-between p-4 text-[14px]">
-                  <span className="text-slate-700">Tap or minor leak repair</span>
-                  <span className="font-bold text-indigo-600">₹399</span>
-                </div>
-                <div className="flex justify-between p-4 text-[14px]">
-                  <span className="text-slate-700">Toilet repair</span>
-                  <span className="font-bold text-indigo-600">₹599</span>
-                </div>
-                <div className="flex justify-between p-4 text-[14px]">
-                  <span className="text-slate-700">Pipe blockage removal</span>
-                  <span className="font-bold text-indigo-600">₹799</span>
-                </div>
-                <div className="flex justify-between p-4 text-[14px]">
-                  <span className="text-slate-700">Bathroom fitting installation</span>
-                  <span className="font-bold text-indigo-600">₹999</span>
-                </div>
+                {subServices.map((sub, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-4 text-[14px] hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => toggleService(sub.name)}>
+                    <div className="flex items-center gap-3">
+                      {selectedServices.has(sub.name) ? (
+                        <CheckSquare className="w-5 h-5 text-indigo-600" />
+                      ) : (
+                        <Square className="w-5 h-5 text-slate-300" />
+                      )}
+                      <span className={selectedServices.has(sub.name) ? "text-slate-900 font-medium" : "text-slate-700"}>{sub.name}</span>
+                    </div>
+                    <span className="font-bold text-indigo-600">{getPriceRange(sub.price)}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -158,14 +209,17 @@ export default function ProviderDetailsModal({ provider, isOpen, onClose }: Prov
           <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
             <div>
               <div className="text-[11px] text-slate-500 mb-0.5">Starting from</div>
-              <div className="text-2xl font-bold text-indigo-700">{basePrice}</div>
+              <div className="text-2xl font-bold text-indigo-700">{currentStartingRate}</div>
             </div>
-            <button className="bg-[#635BFF] hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-sm">
+            <button onClick={() => setIsBookingOpen(true)} className="bg-[#635BFF] hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-sm">
               Book this professional
             </button>
           </div>
         </motion.div>
       </div>
     </AnimatePresence>
+      <BookingFlowModal provider={provider} service={service} isOpen={isBookingOpen} onClose={() => { setIsBookingOpen(false); onClose(); }} />
+    </>,
+    document.body
   );
 }
