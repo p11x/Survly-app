@@ -5,8 +5,8 @@ import {
   Wrench, Zap, Sparkles, Plus, Clock, Car, Settings, Scissors, MoreHorizontal,
   Home, Calendar, FileText, User, Users, LogOut, CheckCircle, ChevronRight, ChevronLeft, Loader2, ShoppingCart, ChevronDown, CircleUser,
   AirVent, Package, Siren, MessageSquare, Briefcase, ClipboardList, Smartphone, Headphones, Wallet, Ticket, CreditCard, Info
-, XCircle, Gift, Share2, Copy } from 'lucide-react';
-import { services, providers } from '../data';
+, XCircle, Gift, Share2, Copy, TrendingUp, Camera, Shield, Check } from 'lucide-react';
+import { services, providers, categorySubServices } from '../data';
 import { Role } from '../types';
 import { auth, db } from '../lib/firebase';
 import { ref, get, update } from 'firebase/database';
@@ -115,7 +115,7 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
           )}
           <SidebarItem icon={Calendar} label="Bookings" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} minimized={isSidebarMinimized} />
           <SidebarItem icon={MessageSquare} label="Messages" active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} minimized={isSidebarMinimized} />
-          <SidebarItem icon={FileText} label="Requirements" active={activeTab === 'req'} onClick={() => setActiveTab('req')} minimized={isSidebarMinimized} />
+          <SidebarItem icon={FileText} label={role?.trim().toLowerCase() === 'provider' ? "User requests" : "Requirements"} active={activeTab === 'req'} onClick={() => setActiveTab('req')} minimized={isSidebarMinimized} />
           <SidebarItem icon={User} label="Profile" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} minimized={isSidebarMinimized} />
         </nav>
 
@@ -208,7 +208,7 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
               {activeTab === 'self_care' && <FilteredProvidersView categoryIds={['beauty']} title="Self care" />}
               {activeTab === 'bookings' && <BookingsView />}
               {activeTab === 'messages' && <MessagesView />}
-              {activeTab === 'req' && <RequirementsView />}
+              {activeTab === 'req' && (role?.trim().toLowerCase() === 'provider' ? <UserRequestsView /> : <RequirementsView />)}
               {activeTab === 'profile' && <ProfileView role={role} onLogout={onLogout} />}
               {activeTab === 'refer' && <ReferPage />}
               {activeTab !== 'refer' && activeTab !== 'location' && <ReferAndEarnBanner onClick={() => setActiveTab('refer')} />}
@@ -818,16 +818,16 @@ function MyPlansView({ onBack }: { onBack: () => void }) {
 function PlaceholderView({ title, onBack }: { title: string, onBack: () => void }) {
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
-      <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors font-medium px-4 md:px-0">
-        <ChevronLeft className="w-5 h-5" /> Back to Profile
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
       </button>
 
-      <div className="bg-white border border-slate-200 rounded-[2rem] p-16 shadow-sm flex flex-col items-center justify-center text-center h-[50vh]">
-        <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 mb-6">
+      <div className="bg-white border border-slate-100 rounded-[2rem] p-16 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center text-center h-[55vh]">
+        <div className="w-20 h-20 bg-indigo-50/80 rounded-full flex items-center justify-center text-indigo-500 mb-6">
           <Settings className="w-10 h-10" />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">{title}</h2>
-        <p className="text-slate-500 max-w-md">
+        <h2 className="text-[26px] font-bold text-slate-900 mb-3 tracking-tight">{title}</h2>
+        <p className="text-slate-500 max-w-md text-[15px] leading-relaxed">
           This section is currently being updated to meet our stunning and enterprise-grade aesthetic standards. Check back soon!
         </p>
       </div>
@@ -836,11 +836,701 @@ function PlaceholderView({ title, onBack }: { title: string, onBack: () => void 
 }
 
 
+function WalletView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-900 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden text-white">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+          <div>
+            <p className="text-indigo-200 font-medium mb-2 flex items-center gap-2"><Wallet className="w-5 h-5"/> Available Balance</p>
+            <h2 className="text-5xl md:text-6xl font-black tracking-tight">₹1,250<span className="text-xl text-indigo-300 font-medium">.00</span></h2>
+          </div>
+          <button className="bg-white text-indigo-900 font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all w-full md:w-auto">
+            + Add Money
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+        <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><Clock className="w-5 h-5 text-slate-400"/> Recent Transactions</h3>
+        <div className="space-y-4">
+          {[
+            { title: 'Added to wallet', date: 'Today, 2:30 PM', amount: '+ ₹500', type: 'credit' },
+            { title: 'AC Service Payment', date: 'Yesterday, 11:15 AM', amount: '- ₹299', type: 'debit' },
+            { title: 'Referral Bonus', date: 'Aug 12, 4:00 PM', amount: '+ ₹50', type: 'credit' },
+          ].map((tx, i) => (
+            <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${tx.type === 'credit' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                  {tx.type === 'credit' ? <Plus className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900">{tx.title}</h4>
+                  <p className="text-sm text-slate-500">{tx.date}</p>
+                </div>
+              </div>
+              <div className={`font-black text-lg ${tx.type === 'credit' ? 'text-emerald-600' : 'text-slate-900'}`}>
+                {tx.amount}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MembershipsView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-[2.5rem] p-10 md:p-14 shadow-xl text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div className="relative z-10 text-center">
+          <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-lg border border-white/30">
+            <Ticket className="w-10 h-10 text-white drop-shadow-md" />
+          </div>
+          <h2 className="text-4xl font-black mb-3 drop-shadow-md">Survly Elite Pass</h2>
+          <p className="text-amber-100 text-lg max-w-lg mx-auto mb-8 font-medium">You don't have an active membership pass. Upgrade to get exclusive perks.</p>
+          <button className="bg-white text-orange-600 font-bold text-lg py-4 px-10 rounded-full shadow-xl hover:scale-105 transition-transform">
+            Explore Passes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RatingsView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white border border-slate-100 rounded-[2rem] p-10 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center text-center">
+          <h3 className="text-xl font-bold text-slate-900 mb-2">Your Average Rating</h3>
+          <div className="text-7xl font-black text-slate-900 my-4 flex items-center gap-2">
+            4.8 <Star className="w-12 h-12 fill-amber-400 text-amber-400" />
+          </div>
+          <p className="text-slate-500 font-medium">Based on 12 recent services</p>
+        </div>
+        
+        <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100 flex flex-col justify-center">
+          <h4 className="font-bold text-slate-900 mb-6">Rating Breakdown</h4>
+          {[5, 4, 3, 2, 1].map((stars) => (
+            <div key={stars} className="flex items-center gap-4 mb-3">
+              <div className="flex items-center gap-1 w-12 font-medium text-slate-600">
+                {stars} <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+              </div>
+              <div className="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
+                <div className="h-full bg-amber-400 rounded-full" style={{ width: stars === 5 ? '80%' : stars === 4 ? '15%' : stars === 3 ? '5%' : '0%' }}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AddressesView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="flex items-center justify-between px-2">
+         <h2 className="text-2xl font-black text-slate-900">Saved Addresses</h2>
+         <button className="flex items-center gap-2 text-indigo-600 font-bold bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 transition-colors">
+            <Plus className="w-5 h-5"/> Add New
+         </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[
+          { type: 'Home', address: 'A-22, Lakshmi Narsimha Apartments, Andheri West, Mumbai, MH 400053', icon: Home, default: true },
+          { type: 'Office', address: 'TechPark Block C, 4th Floor, Powai, Mumbai, MH 400076', icon: Briefcase, default: false }
+        ].map((addr, i) => (
+          <div key={i} className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] relative group hover:border-indigo-200 transition-colors">
+            {addr.default && <span className="absolute top-6 right-6 bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full">DEFAULT</span>}
+            <div className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center mb-6 border border-slate-100 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+              <addr.icon className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">{addr.type}</h3>
+            <p className="text-slate-500 leading-relaxed mb-6">{addr.address}</p>
+            <div className="flex items-center gap-4 border-t border-slate-100 pt-6">
+              <button className="text-indigo-600 font-semibold text-sm hover:text-indigo-800">Edit</button>
+              <button className="text-red-500 font-semibold text-sm hover:text-red-700">Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PaymentsView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="flex items-center justify-between px-2">
+         <h2 className="text-2xl font-black text-slate-900">Payment Methods</h2>
+         <button className="flex items-center gap-2 text-indigo-600 font-bold bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 transition-colors">
+            <Plus className="w-5 h-5"/> Add Card
+         </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-slate-900 rounded-[2rem] p-8 shadow-xl text-white relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4"></div>
+          <div className="flex justify-between items-start relative z-10">
+            <CreditCard className="w-10 h-10 text-white/80" />
+            <span className="font-black italic text-xl">VISA</span>
+          </div>
+          <div className="relative z-10">
+            <div className="text-2xl font-mono tracking-widest mb-2 opacity-90">•••• •••• •••• 4242</div>
+            <div className="flex justify-between text-sm opacity-60 font-medium tracking-widest uppercase">
+              <span>Pavan Teja K</span>
+              <span>12/25</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white border-2 border-dashed border-slate-200 rounded-[2rem] p-8 flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-500 transition-colors cursor-pointer min-h-[220px]">
+          <Plus className="w-10 h-10 mb-4" />
+          <span className="font-bold text-lg text-slate-600">Add New Payment Method</span>
+          <p className="text-sm mt-2 text-center">Support for Credit, Debit, and UPI</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SettingsView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <h2 className="text-2xl font-black text-slate-900 px-2">App Settings</h2>
+
+      <div className="bg-white border border-slate-100 rounded-[2rem] shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h4 className="font-bold text-slate-900 text-lg">Push Notifications</h4>
+            <p className="text-slate-500 text-sm mt-1">Receive updates about your bookings</p>
+          </div>
+          <div className="w-14 h-8 bg-indigo-500 rounded-full p-1 cursor-pointer transition-colors">
+            <div className="w-6 h-6 bg-white rounded-full translate-x-6 shadow-sm"></div>
+          </div>
+        </div>
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h4 className="font-bold text-slate-900 text-lg">Email Updates</h4>
+            <p className="text-slate-500 text-sm mt-1">Offers, newsletters, and receipts</p>
+          </div>
+          <div className="w-14 h-8 bg-slate-200 rounded-full p-1 cursor-pointer transition-colors">
+            <div className="w-6 h-6 bg-white rounded-full shadow-sm"></div>
+          </div>
+        </div>
+        <div className="p-6 flex items-center justify-between">
+          <div>
+            <h4 className="font-bold text-slate-900 text-lg">Location Services</h4>
+            <p className="text-slate-500 text-sm mt-1">Allow Survly to access your precise location</p>
+          </div>
+          <div className="w-14 h-8 bg-indigo-500 rounded-full p-1 cursor-pointer transition-colors">
+            <div className="w-6 h-6 bg-white rounded-full translate-x-6 shadow-sm"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AboutView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="bg-white border border-slate-100 rounded-[2rem] p-12 shadow-[0_4px_24px_rgba(0,0,0,0.02)] text-center">
+        <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-[2rem] mx-auto flex items-center justify-center shadow-xl shadow-indigo-200 mb-8 transform -rotate-3 hover:rotate-0 transition-transform">
+           <span className="font-black text-5xl text-white">S</span>
+        </div>
+        <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-4">Survly</h2>
+        <p className="text-slate-500 font-medium text-lg mb-2">Version 2.0.4 (Build 4921)</p>
+        <p className="text-slate-400 mb-8 max-w-md mx-auto">The premium home service and utility platform for the modern world. Built with ❤️</p>
+
+        <div className="flex justify-center gap-4">
+          <button className="text-indigo-600 font-bold px-6 py-3 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors">Terms of Service</button>
+          <button className="text-indigo-600 font-bold px-6 py-3 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors">Privacy Policy</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NativeDevicesView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="flex items-center justify-between px-2">
+         <h2 className="text-2xl font-black text-slate-900">Native Devices</h2>
+         <button className="flex items-center gap-2 text-indigo-600 font-bold bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 transition-colors">
+            <Plus className="w-5 h-5"/> Add Device
+         </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex items-center gap-6 group hover:border-indigo-200 transition-colors">
+          <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-indigo-50 transition-colors shrink-0 border border-slate-100">
+            <Smartphone className="w-10 h-10 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+          </div>
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <h3 className="text-lg font-bold text-slate-900">iPhone 14 Pro</h3>
+              <span className="bg-emerald-100 text-emerald-700 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full">ACTIVE</span>
+            </div>
+            <p className="text-slate-500 text-sm">Last synced: Just now</p>
+            <button className="text-indigo-600 text-sm font-semibold mt-3">Manage Device</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SupportView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-[2.5rem] p-10 md:p-14 shadow-xl text-center text-white">
+        <Headphones className="w-16 h-16 mx-auto mb-6 opacity-90 drop-shadow-md" />
+        <h2 className="text-3xl md:text-4xl font-black mb-4 tracking-tight drop-shadow-sm">How can we help you?</h2>
+        <p className="text-indigo-100 text-lg max-w-lg mx-auto mb-10">Our enterprise support team is available 24/7 to assist you with any questions or concerns.</p>
+        
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button className="bg-white text-indigo-700 font-bold px-8 py-4 rounded-2xl w-full sm:w-auto shadow-lg hover:scale-105 transition-transform flex items-center justify-center gap-3">
+            <MessageCircle className="w-5 h-5" /> Chat with us
+          </button>
+          <button className="bg-indigo-700/50 backdrop-blur-sm border border-white/20 text-white font-bold px-8 py-4 rounded-2xl w-full sm:w-auto shadow-lg hover:bg-indigo-700/70 transition-colors flex items-center justify-center gap-3">
+            <Phone className="w-5 h-5" /> Call Support
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+        <h3 className="text-xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h3>
+        <div className="space-y-4">
+          {['How do I cancel a booking?', 'What is the refund policy?', 'How do I apply a promo code?'].map((q, i) => (
+            <div key={i} className="p-4 border border-slate-100 rounded-2xl flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors">
+              <span className="font-semibold text-slate-700">{q}</span>
+              <ChevronRight className="w-5 h-5 text-slate-400" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+function ProfileBookingsView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="flex items-center justify-between px-2">
+         <h2 className="text-2xl font-black text-slate-900">My Bookings</h2>
+         <div className="flex gap-2">
+            <button className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold">Upcoming</button>
+            <button className="bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors px-4 py-2 rounded-xl text-sm font-bold">Past</button>
+         </div>
+      </div>
+
+      <div className="space-y-4">
+        {[
+          { service: 'Deep Home Cleaning', date: 'Oct 24, 2026 • 10:00 AM', status: 'Upcoming', provider: 'Urban Cleaners', price: '₹1,499' },
+          { service: 'AC Servicing', date: 'Oct 26, 2026 • 2:00 PM', status: 'Upcoming', provider: 'CoolTech Experts', price: '₹599' }
+        ].map((booking, i) => (
+          <div key={i} className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between gap-6 hover:border-indigo-200 transition-colors">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="bg-indigo-100 text-indigo-700 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full mb-2 inline-block">{booking.status}</span>
+                <h3 className="text-lg font-bold text-slate-900">{booking.service}</h3>
+                <p className="text-slate-500 font-medium text-sm mt-1">{booking.date}</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <div className="w-6 h-6 bg-slate-200 rounded-full"></div>
+                  <span className="text-sm text-slate-600 font-medium">{booking.provider}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col items-end justify-between">
+               <span className="text-xl font-black text-slate-900">{booking.price}</span>
+               <button className="text-indigo-600 font-bold hover:bg-indigo-50 px-4 py-2 rounded-xl transition-colors mt-4 md:mt-0">View Details</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+
+function EarningsView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-900 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden text-white">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+          <div>
+            <p className="text-emerald-200 font-medium mb-2 flex items-center gap-2"><Wallet className="w-5 h-5"/> This Week's Earnings</p>
+            <h2 className="text-5xl md:text-6xl font-black tracking-tight">₹14,250<span className="text-xl text-emerald-300 font-medium">.00</span></h2>
+          </div>
+          <button className="bg-white text-emerald-900 font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all w-full md:w-auto">
+            Withdraw Funds
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+          <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-indigo-500"/> Performance Metrics</h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center pb-4 border-b border-slate-50">
+               <span className="text-slate-500 font-medium">Completed Jobs</span>
+               <span className="text-slate-900 font-bold text-lg">24</span>
+            </div>
+            <div className="flex justify-between items-center pb-4 border-b border-slate-50">
+               <span className="text-slate-500 font-medium">Cancellation Rate</span>
+               <span className="text-emerald-500 font-bold text-lg">1.2%</span>
+            </div>
+            <div className="flex justify-between items-center">
+               <span className="text-slate-500 font-medium">Total Hours</span>
+               <span className="text-slate-900 font-bold text-lg">42 hrs</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+          <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2"><Clock className="w-5 h-5 text-slate-400"/> Recent Payouts</h3>
+          <div className="space-y-4">
+            {[
+              { date: 'Oct 15, 2026', amount: '₹12,400', status: 'Completed' },
+              { date: 'Oct 08, 2026', amount: '₹15,200', status: 'Completed' },
+              { date: 'Oct 01, 2026', amount: '₹9,800', status: 'Completed' },
+            ].map((tx, i) => (
+              <div key={i} className="flex justify-between items-center pb-4 border-b border-slate-50 last:border-0 last:pb-0">
+                <div>
+                  <h4 className="font-bold text-slate-900">{tx.date}</h4>
+                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">{tx.status}</span>
+                </div>
+                <div className="font-black text-lg text-slate-900">{tx.amount}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AvailabilityView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="flex items-center justify-between px-2">
+         <h2 className="text-2xl font-black text-slate-900">Manage Availability</h2>
+         <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-slate-500">Currently Accepting Jobs</span>
+            <div className="w-12 h-6 bg-emerald-500 rounded-full p-1 cursor-pointer transition-colors shadow-inner flex items-center justify-end">
+              <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+            </div>
+         </div>
+      </div>
+
+      <div className="bg-white border border-slate-100 rounded-[2rem] shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden">
+        {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, i) => (
+          <div key={day} className="p-6 border-b border-slate-50 last:border-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-slate-50 transition-colors">
+            <div className="flex items-center gap-4 w-40">
+              <div className={`w-10 h-6 rounded-full p-1 cursor-pointer transition-colors ${i === 6 ? 'bg-slate-200' : 'bg-indigo-500 flex items-center justify-end'}`}>
+                <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+              </div>
+              <span className={`font-bold ${i === 6 ? 'text-slate-400' : 'text-slate-900'}`}>{day}</span>
+            </div>
+            
+            {i !== 6 ? (
+              <div className="flex items-center gap-3">
+                 <div className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 shadow-sm">09:00 AM</div>
+                 <span className="text-slate-400 font-medium">to</span>
+                 <div className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 shadow-sm">06:00 PM</div>
+              </div>
+            ) : (
+              <span className="text-slate-400 font-medium text-sm italic mr-auto sm:mr-0 pl-[56px] sm:pl-0">Unavailable (Day Off)</span>
+            )}
+            
+            <button className="text-indigo-600 font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">Edit</button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BusinessProfileView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <h2 className="text-2xl font-black text-slate-900 px-2 mb-6">Business Profile</h2>
+
+      <div className="bg-white border border-slate-100 rounded-[2rem] p-8 md:p-10 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col gap-8">
+        
+        <div className="flex items-center gap-6 pb-8 border-b border-slate-100">
+           <div className="w-24 h-24 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl font-black shrink-0 relative group cursor-pointer overflow-hidden border-2 border-dashed border-indigo-200">
+              <Briefcase className="w-10 h-10" />
+              <div className="absolute inset-0 bg-indigo-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="w-6 h-6 text-white" />
+              </div>
+           </div>
+           <div>
+              <h3 className="text-xl font-bold text-slate-900">Pavan's Expert Cleaning</h3>
+              <p className="text-slate-500 mt-1">Professional Home Services & Cleaning</p>
+              <div className="flex items-center gap-2 mt-3">
+                <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wide flex items-center gap-1"><Shield className="w-3 h-3"/> Verified Partner</span>
+                <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded-md">Since 2023</span>
+              </div>
+           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Business Name</label>
+            <input type="text" defaultValue="Pavan's Expert Cleaning" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Registration Type</label>
+            <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+              <option>Individual / Freelancer</option>
+              <option>Registered Company (LLC)</option>
+              <option>Partnership</option>
+            </select>
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-bold text-slate-700 mb-2">Business Description</label>
+            <textarea rows={4} defaultValue="Providing top-notch deep cleaning and home maintenance services with 5+ years of experience. Fully equipped and professionally trained." className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"></textarea>
+          </div>
+        </div>
+        
+        <div className="flex justify-end pt-4 border-t border-slate-100">
+           <button className="bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
+             Save Changes
+           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ServiceAreasView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="flex items-center justify-between px-2">
+         <h2 className="text-2xl font-black text-slate-900">Service Areas</h2>
+         <button className="flex items-center gap-2 text-indigo-600 font-bold bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 transition-colors">
+            <Plus className="w-5 h-5"/> Add Area
+         </button>
+      </div>
+      
+      <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+         <div className="flex items-center gap-4 mb-8 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+            <MapPin className="w-6 h-6 text-indigo-500 shrink-0" />
+            <p className="text-slate-700 font-medium text-sm">You are currently servicing within a <span className="font-bold text-indigo-700">15 km</span> radius of your primary location.</p>
+            <button className="ml-auto text-indigo-600 font-bold text-sm bg-white px-3 py-1.5 rounded-lg border border-indigo-100 shadow-sm shrink-0">Change Radius</button>
+         </div>
+
+         <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 border border-indigo-100 bg-indigo-50/30 rounded-2xl">
+               <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">Andheri West & East</h4>
+                    <p className="text-slate-500 text-sm">Mumbai, MH 400053</p>
+                  </div>
+               </div>
+               <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wide">Primary</span>
+            </div>
+            
+            <div className="flex items-center justify-between p-4 border border-slate-100 rounded-2xl group hover:border-slate-300 transition-colors">
+               <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">Juhu & Vile Parle</h4>
+                    <p className="text-slate-500 text-sm">Mumbai, MH</p>
+                  </div>
+               </div>
+               <button className="text-red-500 font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity">Remove</button>
+            </div>
+            
+            <div className="flex items-center justify-between p-4 border border-slate-100 rounded-2xl group hover:border-slate-300 transition-colors">
+               <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">Bandra West</h4>
+                    <p className="text-slate-500 text-sm">Mumbai, MH</p>
+                  </div>
+               </div>
+               <button className="text-red-500 font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity">Remove</button>
+            </div>
+         </div>
+      </div>
+    </div>
+  );
+}
+
+function PayoutMethodsView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+
+      <div className="flex items-center justify-between px-2">
+         <h2 className="text-2xl font-black text-slate-900">Payout Methods</h2>
+         <button className="flex items-center gap-2 text-indigo-600 font-bold bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 transition-colors">
+            <Plus className="w-5 h-5"/> Add Account
+         </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-slate-900 rounded-[2rem] p-8 shadow-xl text-white relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4"></div>
+          <div className="flex justify-between items-start relative z-10">
+            <div className="bg-white/10 px-3 py-1 rounded-lg backdrop-blur-sm border border-white/20 font-semibold text-sm">Primary Account</div>
+            <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
+              <Check className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="relative z-10 mt-8">
+            <h4 className="font-bold text-lg mb-1 opacity-90">HDFC Bank</h4>
+            <div className="text-2xl font-mono tracking-widest mb-2 opacity-90">•••• •••• 9821</div>
+            <div className="flex justify-between text-sm opacity-60 font-medium tracking-widest uppercase">
+              <span>Pavan Teja K</span>
+              <span>IFSC: HDFC0001234</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white border-2 border-dashed border-slate-200 rounded-[2rem] p-8 flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-500 transition-colors cursor-pointer min-h-[220px]">
+          <Plus className="w-10 h-10 mb-4" />
+          <span className="font-bold text-lg text-slate-600">Add Bank Account</span>
+          <p className="text-sm mt-2 text-center max-w-xs">Add another bank account or UPI ID to receive payments.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PerformanceView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8 space-y-8">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold text-sm px-4 md:px-0">
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.5} /> Back to Profile
+      </button>
+      
+      <div className="flex items-center justify-between px-2">
+         <h2 className="text-2xl font-black text-slate-900">My Performance</h2>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-[2rem] p-10 shadow-xl flex flex-col items-center justify-center text-center text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          <h3 className="text-xl font-bold mb-2 relative z-10">Overall Rating</h3>
+          <div className="text-7xl font-black my-4 flex items-center gap-2 relative z-10 drop-shadow-md">
+            4.9 <Star className="w-12 h-12 fill-white text-white drop-shadow-sm" />
+          </div>
+          <p className="font-medium text-amber-100 relative z-10">Top 5% of Providers in Mumbai</p>
+        </div>
+        
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 flex flex-col justify-center shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+          <h4 className="font-bold text-slate-900 mb-6">Recent Customer Feedback</h4>
+          <div className="space-y-4">
+             <div className="pb-4 border-b border-slate-100">
+                <div className="flex items-center justify-between mb-1">
+                   <div className="flex text-amber-400"><Star className="w-3 h-3 fill-current"/><Star className="w-3 h-3 fill-current"/><Star className="w-3 h-3 fill-current"/><Star className="w-3 h-3 fill-current"/><Star className="w-3 h-3 fill-current"/></div>
+                   <span className="text-xs text-slate-400 font-medium">2 days ago</span>
+                </div>
+                <p className="text-slate-700 text-sm">"Pavan was very professional and did an amazing deep clean of our apartment. Highly recommended!"</p>
+             </div>
+             <div>
+                <div className="flex items-center justify-between mb-1">
+                   <div className="flex text-amber-400"><Star className="w-3 h-3 fill-current"/><Star className="w-3 h-3 fill-current"/><Star className="w-3 h-3 fill-current"/><Star className="w-3 h-3 fill-current"/><Star className="w-3 h-3 fill-current"/></div>
+                   <span className="text-xs text-slate-400 font-medium">1 week ago</span>
+                </div>
+                <p className="text-slate-700 text-sm">"On time, polite, and very efficient work."</p>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function ProfileView({ role, onLogout }: any) {
   const [profile, setProfile] = useState({ name: 'Pavan Teja K', email: '', phone: '9885112379', location: 'Mumbai, MH' });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('main');
+  const isProvider = role?.trim().toLowerCase() === 'provider';
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -866,52 +1556,97 @@ function ProfileView({ role, onLogout }: any) {
 
   if (activeTab === 'plans') {
     return <MyPlansView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Wallet') {
+    return <WalletView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Passes & Membership') {
+    return <MembershipsView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'My Rating') {
+    return <RatingsView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Manage Addresses') {
+    return <AddressesView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Manage Payment Methods') {
+    return <PaymentsView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Settings') {
+    return <SettingsView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'About Survly') {
+    return <AboutView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Native Devices') {
+    return <NativeDevicesView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Help & Support') {
+    return <SupportView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'My Bookings') {
+    return <ProfileBookingsView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Business Profile') {
+    return <BusinessProfileView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Availability') {
+    return <AvailabilityView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Earnings') {
+    return <EarningsView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'My Performance') {
+    return <PerformanceView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Service Areas') {
+    return <ServiceAreasView onBack={() => setActiveTab('main')} />;
+  } else if (activeTab === 'Payout Methods') {
+    return <PayoutMethodsView onBack={() => setActiveTab('main')} />;
   } else if (activeTab !== 'main') {
     return <PlaceholderView title={activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace(/([A-Z])/g, ' $1').trim()} onBack={() => setActiveTab('main')} />;
   }
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12 pt-8">
       
       {/* Header Profile Info */}
-      <div className="flex items-center gap-6 px-4">
-        <div className="w-24 h-24 bg-indigo-100/80 text-indigo-700 rounded-full flex items-center justify-center text-4xl font-bold shrink-0 shadow-sm border border-indigo-50">
+      <div className="flex items-center gap-6 px-2 mb-2">
+        <div className="w-[100px] h-[100px] bg-[#EEF2FF] text-[#4F46E5] rounded-full flex items-center justify-center text-[36px] font-bold shrink-0 shadow-sm">
           {getInitials(profile.name)}
         </div>
-        <div>
-          <h1 className="text-[1.75rem] font-bold text-slate-900">{profile.name || 'User'}</h1>
-          <p className="text-slate-500 text-sm mt-1">{profile.phone || 'Phone not added'}</p>
+        <div className="flex flex-col justify-center">
+          <h1 className="text-[28px] font-bold text-slate-900 tracking-tight leading-tight">{profile.name || 'User'}</h1>
+          <p className="text-slate-500 text-[15px] mt-1">{profile.phone || 'Phone not added'}</p>
         </div>
       </div>
 
       {/* Quick Action Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <button onClick={() => setActiveTab('My Bookings')} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-start gap-4 hover:border-indigo-300 hover:shadow-md transition-all text-left">
-          <ClipboardList className="w-6 h-6 text-slate-700" strokeWidth={1.5} />
-          <span className="font-semibold text-slate-900">My bookings</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <button onClick={() => setActiveTab(isProvider ? 'Earnings' : 'My Bookings')} className="bg-white border border-slate-100 rounded-[20px] p-6 flex flex-col items-start gap-4 hover:border-indigo-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all text-left shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[132px] justify-between">
+          {isProvider ? <Wallet className="w-[22px] h-[22px] text-slate-700" strokeWidth={1.5} /> : <ClipboardList className="w-[22px] h-[22px] text-slate-700" strokeWidth={1.5} />}
+          <span className="font-semibold text-[15px] text-slate-900">{isProvider ? 'Earnings' : 'My bookings'}</span>
         </button>
-        <button onClick={() => setActiveTab('Native Devices')} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-start gap-4 hover:border-indigo-300 hover:shadow-md transition-all text-left">
-          <Smartphone className="w-6 h-6 text-slate-700" strokeWidth={1.5} />
-          <span className="font-semibold text-slate-900">Native devices</span>
+        <button onClick={() => setActiveTab(isProvider ? 'Availability' : 'Native Devices')} className="bg-white border border-slate-100 rounded-[20px] p-6 flex flex-col items-start gap-4 hover:border-indigo-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all text-left shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[132px] justify-between">
+          {isProvider ? <Clock className="w-[22px] h-[22px] text-slate-700" strokeWidth={1.5} /> : <Smartphone className="w-[22px] h-[22px] text-slate-700" strokeWidth={1.5} />}
+          <span className="font-semibold text-[15px] text-slate-900">{isProvider ? 'Availability' : 'Native devices'}</span>
         </button>
-        <button onClick={() => setActiveTab('Help & Support')} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-start gap-4 hover:border-indigo-300 hover:shadow-md transition-all text-left">
-          <Headphones className="w-6 h-6 text-slate-700" strokeWidth={1.5} />
-          <span className="font-semibold text-slate-900">Help & support</span>
+        <button onClick={() => setActiveTab('Help & Support')} className="bg-white border border-slate-100 rounded-[20px] p-6 flex flex-col items-start gap-4 hover:border-indigo-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all text-left shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[132px] justify-between">
+          <Headphones className="w-[22px] h-[22px] text-slate-700" strokeWidth={1.5} />
+          <span className="font-semibold text-[15px] text-slate-900">Help & support</span>
         </button>
       </div>
 
       {/* Menu List */}
-      <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-        <MenuListItem icon={FileText} title="My Plans" onClick={() => setActiveTab('plans')} />
-        <MenuListItem icon={Wallet} title="Wallet" onClick={() => setActiveTab('Wallet')} />
-        <MenuListItem icon={Ticket} title="Passes & membership" onClick={() => setActiveTab('Passes & Membership')} />
-        <MenuListItem icon={Star} title="My rating" onClick={() => setActiveTab('My Rating')} />
-        <MenuListItem icon={MapPin} title="Manage addresses" onClick={() => setActiveTab('Manage Addresses')} />
-        <MenuListItem icon={CreditCard} title="Manage payment methods" onClick={() => setActiveTab('Manage Payment Methods')} />
-        <MenuListItem icon={Settings} title="Settings" onClick={() => setActiveTab('Settings')} />
-        <MenuListItem icon={Info} title="About Survly" isLast={true} onClick={() => setActiveTab('About Survly')} />
+      <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.03)] mt-2">
+        {isProvider ? (
+          <>
+            <MenuListItem icon={Briefcase} title="Business Profile" onClick={() => setActiveTab('Business Profile')} />
+            <MenuListItem icon={CreditCard} title="Payout Methods" onClick={() => setActiveTab('Payout Methods')} />
+            <MenuListItem icon={Star} title="My Performance" onClick={() => setActiveTab('My Performance')} />
+            <MenuListItem icon={MapPin} title="Service Areas" onClick={() => setActiveTab('Service Areas')} />
+            <MenuListItem icon={Settings} title="Settings" onClick={() => setActiveTab('Settings')} />
+            <MenuListItem icon={Info} title="About Survly" isLast={true} onClick={() => setActiveTab('About Survly')} />
+          </>
+        ) : (
+          <>
+            <MenuListItem icon={FileText} title="My Plans" onClick={() => setActiveTab('plans')} />
+            <MenuListItem icon={Wallet} title="Wallet" onClick={() => setActiveTab('Wallet')} />
+            <MenuListItem icon={Ticket} title="Passes & membership" onClick={() => setActiveTab('Passes & Membership')} />
+            <MenuListItem icon={Star} title="My rating" onClick={() => setActiveTab('My Rating')} />
+            <MenuListItem icon={MapPin} title="Manage addresses" onClick={() => setActiveTab('Manage Addresses')} />
+            <MenuListItem icon={CreditCard} title="Manage payment methods" onClick={() => setActiveTab('Manage Payment Methods')} />
+            <MenuListItem icon={Settings} title="Settings" onClick={() => setActiveTab('Settings')} />
+            <MenuListItem icon={Info} title="About Survly" isLast={true} onClick={() => setActiveTab('About Survly')} />
+          </>
+        )}
       </div>
-
     </div>
   );
 }
@@ -921,13 +1656,13 @@ function MenuListItem({ icon: Icon, title, isLast = false, onClick }: any) {
   return (
     <button 
       onClick={onClick}
-      className={`w-full flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition-colors ${!isLast ? 'border-b border-slate-100' : ''}`}
+      className={`w-full flex items-center justify-between px-6 py-5 bg-white hover:bg-slate-50 transition-colors ${!isLast ? 'border-b border-slate-100/80' : ''}`}
     >
       <div className="flex items-center gap-4">
-        <Icon className="w-[18px] h-[18px] text-slate-600" strokeWidth={1.5} />
+        <Icon className="w-[18px] h-[18px] text-slate-500" strokeWidth={1.5} />
         <span className="font-medium text-slate-700 text-[15px]">{title}</span>
       </div>
-      <ChevronRight className="w-5 h-5 text-slate-400" strokeWidth={1.5} />
+      <ChevronRight className="w-[18px] h-[18px] text-slate-300" strokeWidth={2} />
     </button>
   );
 }
@@ -1098,6 +1833,113 @@ function BookingsView() {
     </div>
   );
 }
+
+function UserRequestsView() {
+  return (
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-black tracking-tight text-slate-900">User Requests</h1>
+        <p className="text-slate-500 text-lg">Browse custom service requirements posted by users near you.</p>
+      </div>
+
+      <div className="space-y-6">
+        {[
+          {
+            id: 1,
+            title: 'Complete 3BHK Deep Cleaning',
+            budget: '₹2,500 - ₹4,000',
+            location: 'Bandra West, Mumbai',
+            time: '2 hours ago',
+            description: 'Looking for a professional team to deep clean a recently renovated 3BHK apartment. Requires specialized floor cleaning and bathroom sanitization.',
+            user: { name: 'Ananya Sharma', phone: '+91 98765 43210', rating: '4.9' },
+            tags: ['Cleaning', 'Deep Clean', 'Urgent']
+          },
+          {
+            id: 2,
+            title: 'Smart Home Lighting Installation',
+            budget: '₹1,500 - ₹2,000',
+            location: 'Andheri East, Mumbai',
+            time: '5 hours ago',
+            description: 'Need an electrician to install 10 smart switches and setup Philips Hue ambient lighting in living room.',
+            user: { name: 'Karan Patel', phone: '+91 91234 56789', rating: '4.8' },
+            tags: ['Electrical', 'Smart Home']
+          },
+          {
+            id: 3,
+            title: 'Bathroom Leak Repair & Tiles Fix',
+            budget: '₹800 - ₹1,200',
+            location: 'Juhu, Mumbai',
+            time: '1 day ago',
+            description: 'Minor pipe leak in the master bathroom sink. Also need 2 cracked tiles replaced (I have the replacement tiles).',
+            user: { name: 'Rohit Mehta', phone: '+91 99887 76655', rating: '4.7' },
+            tags: ['Plumbing', 'Repair']
+          }
+        ].map(req => (
+          <div key={req.id} className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all group">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+              
+              <div className="flex-1 space-y-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{req.title}</h3>
+                  <div className="flex gap-2">
+                    {req.tags.map(tag => (
+                      <span key={tag} className="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-md">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+                
+                <p className="text-slate-600 text-sm md:text-base leading-relaxed">{req.description}</p>
+                
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2">
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <Wallet className="w-5 h-5 text-indigo-500" />
+                    <span className="font-semibold">{req.budget}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <MapPin className="w-5 h-5 text-indigo-500" />
+                    <span className="font-medium text-sm">{req.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <Clock className="w-5 h-5 text-indigo-500" />
+                    <span className="font-medium text-sm">{req.time}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-full md:w-72 shrink-0 bg-slate-50 border border-slate-100 rounded-2xl p-5">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Contact Info</h4>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-indigo-100 text-indigo-600 font-bold rounded-full flex items-center justify-center shrink-0">
+                    {req.user.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-900">{req.user.name}</div>
+                    <div className="flex items-center gap-1 text-xs font-medium text-slate-500 mt-0.5">
+                      <Star className="w-3 h-3 text-amber-400 fill-amber-400" /> {req.user.rating} User Rating
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 text-sm text-slate-700 bg-white p-2.5 rounded-xl border border-slate-200">
+                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="font-medium">{req.user.phone}</span>
+                  </div>
+                  
+                  <button className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                    <MessageCircle className="w-5 h-5" /> Chat with user
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function RequirementsView() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
@@ -1223,10 +2065,34 @@ function MyServicesView() {
 }
 function AddServiceView() {
   const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [customSubServices, setCustomSubServices] = useState<any[]>([]);
+  const [selectedSubServices, setSelectedSubServices] = useState<Record<string, boolean>>({});
+  const [subServicePrices, setSubServicePrices] = useState<Record<string, {min: string, max: string}>>({});
+  const [newSubService, setNewSubService] = useState({ name: '', minPrice: '', maxPrice: '', description: '', image: '' });
+
+  const handleSelectCategory = (id: string) => {
+    setSelectedService(id);
+    setCustomSubServices([]);
+    setSelectedSubServices({});
+    setSubServicePrices({});
+    setNewSubService({ name: '', minPrice: '', maxPrice: '', description: '', image: '' });
+  };
+
+  const handleAddCustomService = () => {
+    if (newSubService.name.trim() && newSubService.minPrice.trim() && newSubService.maxPrice.trim()) {
+      setCustomSubServices([...customSubServices, { ...newSubService, price: `₹${newSubService.minPrice} - ₹${newSubService.maxPrice}` }]);
+      setSelectedSubServices({ ...selectedSubServices, [newSubService.name]: true });
+      setSubServicePrices({ ...subServicePrices, [newSubService.name]: { min: newSubService.minPrice, max: newSubService.maxPrice } });
+      setNewSubService({ name: '', minPrice: '', maxPrice: '', description: '', image: '' });
+    }
+  };
 
   if (selectedService) {
     const service = services.find(s => s.id === selectedService);
     const Icon = iconMap[service?.iconName || 'Settings'];
+    const defaultSubServices = service ? categorySubServices[service.id] || categorySubServices.plumbing : [];
+    const allSubServices = [...defaultSubServices, ...customSubServices];
+
     return (
       <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-8 duration-300 pb-12">
         <div className="flex items-center gap-4 border-b border-slate-200 pb-6 pt-4">
@@ -1238,45 +2104,175 @@ function AddServiceView() {
               {Icon && <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl"><Icon className="w-8 h-8" /></div>} 
               Add {service?.name}
             </h1>
-            <p className="text-slate-500 mt-1">Set your pricing, experience, and availability for {service?.name.toLowerCase()}.</p>
+            <p className="text-slate-500 mt-1">Select the specific services you provide and set your estimated price range.</p>
           </div>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
           <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setSelectedService(null); }}>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Pricing (per hour)</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
-                      <input type="number" placeholder="499" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-10 pr-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-lg font-medium text-slate-900 transition-all hover:border-indigo-300" required />
+             
+             <div className="space-y-4">
+               <h3 className="text-lg font-bold text-slate-900 mb-4 border-b border-slate-100 pb-2">Available Sub-services</h3>
+               
+               {allSubServices.map((sub, idx) => {
+                 const isChecked = selectedSubServices[sub.name] || false;
+                 return (
+                   <div key={idx} className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border ${isChecked ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200 bg-slate-50'} transition-all gap-4`}>
+                     <div className="flex items-center gap-3">
+                       <input 
+                         type="checkbox" 
+                         className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0"
+                         checked={isChecked}
+                         onChange={(e) => {
+                           const checked = e.target.checked;
+                           setSelectedSubServices({ ...selectedSubServices, [sub.name]: checked });
+                           if (checked && !subServicePrices[sub.name]) {
+                             const basePrice = sub.price.replace(/[^0-9]/g, '');
+                             setSubServicePrices({ ...subServicePrices, [sub.name]: { min: basePrice, max: (parseInt(basePrice || '0') + 500).toString() } });
+                           }
+                         }}
+                       />
+                       <div className="flex items-center gap-3">
+                         {sub.image && <img src={sub.image} alt={sub.name} className="w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0" />}
+                         <div>
+                           <div className={`font-semibold ${isChecked ? 'text-indigo-900' : 'text-slate-700'}`}>{sub.name}</div>
+                           <div className="text-xs text-slate-500">Suggested: {sub.price}</div>
+                           {sub.description && <div className="text-xs text-slate-500 mt-0.5 line-clamp-1 max-w-[200px] sm:max-w-xs">{sub.description}</div>}
+                         </div>
+                       </div>
+                     </div>
+                     
+                     {isChecked && (
+                       <div className="flex items-center gap-2 pl-8 sm:pl-0 shrink-0">
+                         <label className="text-sm font-bold text-slate-600 whitespace-nowrap">Price Range:</label>
+                         <div className="flex items-center gap-2">
+                           <div className="relative w-24">
+                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                             <input 
+                               type="number" 
+                               placeholder="Min"
+                               value={subServicePrices[sub.name]?.min || ''}
+                               onChange={(e) => setSubServicePrices({ ...subServicePrices, [sub.name]: { ...subServicePrices[sub.name], min: e.target.value } })}
+                               className="w-full bg-white border border-slate-300 rounded-lg py-2 pl-7 pr-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm font-medium text-slate-900" 
+                               required 
+                             />
+                           </div>
+                           <span className="text-slate-400 font-medium text-sm">to</span>
+                           <div className="relative w-24">
+                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                             <input 
+                               type="number" 
+                               placeholder="Max"
+                               value={subServicePrices[sub.name]?.max || ''}
+                               onChange={(e) => setSubServicePrices({ ...subServicePrices, [sub.name]: { ...subServicePrices[sub.name], max: e.target.value } })}
+                               className="w-full bg-white border border-slate-300 rounded-lg py-2 pl-7 pr-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm font-medium text-slate-900" 
+                               required 
+                             />
+                           </div>
+                         </div>
+                       </div>
+                     )}
+                   </div>
+                 );
+               })}
+             </div>
+
+             <div className="bg-slate-50 border border-slate-200 border-dashed rounded-xl p-6 mt-6">
+                <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2"><Plus className="w-5 h-5 text-indigo-500"/> Add a custom service</h4>
+                
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+                    <input 
+                      type="text" 
+                      placeholder="E.g., Special deep cleaning" 
+                      value={newSubService.name}
+                      onChange={(e) => setNewSubService({ ...newSubService, name: e.target.value })}
+                      className="flex-1 bg-white border border-slate-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm font-medium text-slate-900"
+                    />
+                    
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="relative w-full sm:w-28">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                        <input 
+                          type="number" 
+                          placeholder="Min"
+                          value={newSubService.minPrice}
+                          onChange={(e) => setNewSubService({ ...newSubService, minPrice: e.target.value })}
+                          className="w-full bg-white border border-slate-300 rounded-lg py-3 pl-7 pr-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm font-medium text-slate-900"
+                        />
+                      </div>
+                      <span className="text-slate-400 font-medium text-sm">to</span>
+                      <div className="relative w-full sm:w-28">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                        <input 
+                          type="number" 
+                          placeholder="Max"
+                          value={newSubService.maxPrice}
+                          onChange={(e) => setNewSubService({ ...newSubService, maxPrice: e.target.value })}
+                          className="w-full bg-white border border-slate-300 rounded-lg py-3 pl-7 pr-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm font-medium text-slate-900"
+                        />
+                      </div>
                     </div>
                   </div>
+
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Experience Level</label>
-                    <select className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-lg font-medium text-slate-900 transition-all hover:border-indigo-300 cursor-pointer appearance-none">
-                       <option>Beginner (0-2 Years)</option>
-                       <option>Intermediate (3-5 Years)</option>
-                       <option>Expert (5+ Years)</option>
-                    </select>
+                    <textarea 
+                      placeholder="About the service (optional)" 
+                      value={newSubService.description}
+                      onChange={(e) => setNewSubService({ ...newSubService, description: e.target.value })}
+                      rows={2}
+                      className="w-full bg-white border border-slate-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm font-medium text-slate-900 resize-none"
+                    ></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Service Images (optional)</label>
+                    <div className="flex items-center gap-4">
+                      {newSubService.image ? (
+                        <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-slate-200">
+                           <img src={newSubService.image} alt="Preview" className="w-full h-full object-cover" />
+                           <button type="button" onClick={() => setNewSubService({ ...newSubService, image: '' })} className="absolute top-1 right-1 bg-white/80 p-1 rounded-full hover:bg-white shadow-sm"><XCircle className="w-4 h-4 text-red-500"/></button>
+                        </div>
+                      ) : (
+                        <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-slate-300 border-dashed rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-colors">
+                           <Camera className="w-6 h-6 text-slate-400 mb-1" />
+                           <span className="text-xs font-semibold text-slate-500">Upload</span>
+                           <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                             if (e.target.files && e.target.files[0]) {
+                               setNewSubService({ ...newSubService, image: URL.createObjectURL(e.target.files[0]) });
+                             }
+                           }} />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-2">
+                    <button 
+                      type="button" 
+                      onClick={handleAddCustomService}
+                      disabled={!newSubService.name.trim() || !newSubService.minPrice.trim() || !newSubService.maxPrice.trim()}
+                      className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white font-bold py-2.5 px-6 rounded-lg transition-colors whitespace-nowrap"
+                    >
+                      Add Custom Service
+                    </button>
                   </div>
                 </div>
-                
-                <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl">
-                  <h4 className="font-bold text-slate-900 mb-4 flex items-center gap-2"><CheckCircle className="w-5 h-5 text-emerald-500"/> Trust & Safety</h4>
-                  <p className="text-sm text-slate-600 mb-4 leading-relaxed">Providing accurate information helps build trust with customers and increases your booking rate.</p>
-                  <ul className="space-y-3 text-sm text-slate-600 font-medium">
-                    <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div> Background checks are required for new services.</li>
-                    <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div> Standard commission rates apply.</li>
-                  </ul>
-                </div>
+             </div>
+
+             <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl">
+               <h4 className="font-bold text-slate-900 mb-4 flex items-center gap-2"><CheckCircle className="w-5 h-5 text-emerald-500"/> Trust & Safety</h4>
+               <p className="text-sm text-slate-600 mb-4 leading-relaxed">Providing accurate information helps build trust with customers and increases your booking rate.</p>
+               <ul className="space-y-3 text-sm text-slate-600 font-medium">
+                 <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div> Background checks are required for new services.</li>
+                 <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div> Standard commission rates apply.</li>
+               </ul>
              </div>
              
              <div className="border-t border-slate-100 pt-8 flex justify-end gap-4">
                <button type="button" onClick={() => setSelectedService(null)} className="px-8 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">Cancel</button>
                <button type="submit" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2">
-                 <Sparkles className="w-5 h-5" /> Save & Publish Service
+                 <Sparkles className="w-5 h-5" /> Save & Publish Services
                </button>
              </div>
           </form>
@@ -1296,7 +2292,7 @@ function AddServiceView() {
         {services.map(service => {
           const Icon = iconMap[service.iconName || 'Settings'];
           return (
-            <div key={service.id} onClick={() => setSelectedService(service.id)} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-400 group transition-all">
+            <div key={service.id} onClick={() => handleSelectCategory(service.id)} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md cursor-pointer hover:border-indigo-400 group transition-all">
               <div className="w-16 h-16 bg-slate-50 rounded-[1.25rem] flex items-center justify-center mb-4 group-hover:bg-indigo-50 group-hover:scale-110 transition-all border border-slate-100 group-hover:border-indigo-100 shadow-inner">
                 {Icon && <Icon className="w-8 h-8 text-slate-600 group-hover:text-indigo-600 transition-colors" />}
               </div>
@@ -1309,6 +2305,7 @@ function AddServiceView() {
     </div>
   );
 }
+
 function ProviderDashboardView() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-12">
@@ -1549,14 +2546,14 @@ function ReferAndEarnBanner({ onClick }: { onClick: () => void }) {
   return (
     <div 
       onClick={onClick}
-      className="mt-8 bg-gradient-to-r from-[#F8F5FF] to-white border border-violet-100 rounded-2xl p-5 md:p-6 flex items-center justify-between cursor-pointer hover:shadow-sm hover:border-violet-200 transition-all relative overflow-hidden group max-w-4xl mx-auto"
+      className="mt-6 bg-white border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] rounded-[24px] p-6 flex items-center justify-between cursor-pointer hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:border-slate-200 transition-all relative overflow-hidden group max-w-4xl mx-auto"
     >
       <div className="relative z-10 pr-20">
-        <h3 className="text-[17px] md:text-lg font-bold text-slate-900 mb-1 group-hover:text-violet-700 transition-colors">Refer & earn ₹50</h3>
-        <p className="text-slate-500 text-[13px] md:text-sm">Get ₹50 when your friend completes their first booking.</p>
+        <h3 className="text-[22px] font-bold text-slate-900 mb-1.5 tracking-tight">Refer & earn ₹50</h3>
+        <p className="text-slate-500 text-[15px]">Get ₹50 when your friend completes their first booking.</p>
       </div>
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-24 h-24 flex items-center justify-center opacity-90 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-        <img src="https://firebasestorage.googleapis.com/v0/b/survly-c13e9.firebasestorage.app/o/giftbox.png?alt=media&token=d1f5e8b4-5c9c-4c4f-9e7c-0a1b2c3d4e5f" alt="Gift" className="w-16 h-16 object-contain drop-shadow-md" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<span class="text-6xl">🎁</span>'; }} />
+      <div className="absolute right-6 top-1/2 -translate-y-1/2 z-10 w-24 h-24 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+        <img src="https://cdn3d.iconscout.com/3d/premium/thumb/gift-box-4993181-4161820.png" alt="Gift" className="w-full h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span class="text-6xl">🎁</span>'; }} />
       </div>
     </div>
   );
