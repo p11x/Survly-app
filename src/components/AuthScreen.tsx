@@ -14,11 +14,16 @@ export default function AuthScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+91');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // New Phone Auth State
   const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [emailOtpCode, setEmailOtpCode] = useState("");
+  const [generatedEmailOtp, setGeneratedEmailOtp] = useState("");
+  const [pendingSignupData, setPendingSignupData] = useState<any>(null);
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
@@ -53,6 +58,9 @@ export default function AuthScreen() {
     } catch (err: any) {
       console.error("Google Auth error:", err);
       let message = err.message || 'An error occurred during Google authentication.';
+      if (message.includes('auth/unauthorized-domain')) {
+        message = 'This domain is not authorized for Google Sign-In. Please add it to your Firebase Console under Authentication -> Settings -> Authorized domains.';
+      }
       if (message.includes('auth/configuration-not-found') || message.includes('auth/operation-not-supported-in-this-environment')) {
         message = 'Authentication failed: Please enable the "Google" provider in your Firebase Console.';
       } else if (message.includes('auth/popup-closed-by-user')) {
@@ -71,6 +79,56 @@ export default function AuthScreen() {
     }
   };
 
+  
+  const handleEmailOtpVerify = async () => {
+    setIsLoading(true);
+    setError(null);
+    if (emailOtpCode === generatedEmailOtp) {
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, pendingSignupData.email, pendingSignupData.password);
+        await updateProfile(userCredential.user, { displayName: pendingSignupData.name });
+        try {
+          const userRef = ref(db, `users/${userCredential.user.uid}`);
+          await set(userRef, {
+            role: pendingSignupData.activeTab,
+            email: pendingSignupData.email,
+            name: pendingSignupData.name,
+            phone: pendingSignupData.phone,
+            createdAt: new Date().toISOString()
+          });
+        } catch (dbErr) {
+          console.warn("Database error during Email Signup, proceeding anyway:", dbErr);
+        }
+      } catch (err: any) {
+        console.error("Auth error:", err);
+        setError(err.message);
+      }
+    } else {
+      setError('Invalid verification code.');
+    }
+    setIsLoading(false);
+  };
+
+  const handleSendEmailOtp = () => {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedEmailOtp(code);
+    setPendingSignupData({ email, password, name, phone, activeTab });
+    setEmailOtpSent(true);
+    console.log("SIMULATED EMAIL OTP SENT TO", email, ":", code);
+    alert(`Demo Mode: An OTP has been sent to your email. (OTP: ${code})`);
+  };
+
+  const switchToPhoneOtp = async () => {
+    if (!phone) {
+      setError('Please provide a phone number to use Phone OTP.');
+      return;
+    }
+    setEmailOtpSent(false);
+    setAuthMethod('phone');
+    // We don't automatically call handleSendOtp here because we need to clear errors, 
+    // maybe wait for recaptcha to be visible, but it will show the phone UI.
+  };
+
   const handleSendOtp = async () => {
     setIsLoading(true);
     setError(null);
@@ -78,7 +136,7 @@ export default function AuthScreen() {
       setupRecaptcha();
       const appVerifier = (window as any).recaptchaVerifier;
       // Phone number must be in E.164 format, e.g., +1234567890
-      const formattedPhone = phone.startsWith('+') ? phone : `+${phone.replace(/\D/g, '')}`;
+      const formattedPhone = phone.startsWith('+') ? phone : `${countryCode}${phone.replace(/\D/g, '')}`;
       const result = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
       setConfirmationResult(result);
       setOtpSent(true);
@@ -89,6 +147,8 @@ export default function AuthScreen() {
         message = 'Authentication failed: Please enable the "Phone" provider in your Firebase Console.';
       } else if (message.includes('auth/invalid-phone-number')) {
         message = 'Invalid phone number format. Please include your country code (e.g., +91).';
+      } else if (message.includes('SMS unable to be sent until this region enabled') || message.includes('auth/operation-not-allowed')) {
+        message = 'Firebase SMS is disabled for this region. Please go to Firebase Console -> Authentication -> Settings -> SMS Region Policy and allow your region.';
       }
       setError(message);
     }
@@ -122,6 +182,7 @@ export default function AuthScreen() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
     if (authMethod === 'phone') {
       if (otpSent) {
         await handleVerifyOtp();
@@ -131,44 +192,32 @@ export default function AuthScreen() {
       return;
     }
 
+    if (mode === 'signup') {
+      if (emailOtpSent) {
+        await handleEmailOtpVerify();
+        return;
+      } else {
+        handleSendEmailOtp();
+        return;
+      }
+    }
+
     setIsLoading(true);
     setError(null);
-    
+        
     try {
-      if (mode === 'signup') {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(userCredential.user, { displayName: name });
-        try {
-          const userRef = ref(db, `users/${userCredential.user.uid}`);
-          await set(userRef, {
-            role: activeTab,
-            email: email,
-            name: name,
-            phone: phone,
-            createdAt: new Date().toISOString()
-          });
-        } catch (dbErr) {
-          console.warn("Database error during Email Signup, proceeding anyway:", dbErr);
-        }
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
       console.error("Auth error:", err);
-      // Clean up Firebase error messages for display
       let message = err.message || 'An error occurred during authentication.';
       if (message.includes('auth/invalid-credential') || message.includes('auth/user-not-found') || message.includes('auth/wrong-password')) {
         message = 'Invalid email or password.';
-      } else if (message.includes('auth/email-already-in-use')) {
-        message = 'An account with this email already exists.';
-      } else if (message.includes('auth/weak-password')) {
-        message = 'Password should be at least 6 characters.';
       } else if (message.includes('auth/configuration-not-found')) {
         message = 'Authentication failed: Please enable the "Email/Password" provider in your Firebase Console.';
       }
       setError(message);
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -252,7 +301,58 @@ export default function AuthScreen() {
           </AnimatePresence>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div id="recaptcha-container"></div>
+            
+            {mode === 'signup' && emailOtpSent && authMethod === 'email' ? (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key="email-otp-input"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-4"
+                >
+                  <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-sm text-indigo-800">
+                    We've sent a 6-digit verification code to <span className="font-bold">{email}</span>. <br/><span className="text-indigo-600 font-bold mt-1 inline-block">Demo OTP: {generatedEmailOtp}</span>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-500 ml-1">Email Verification Code</label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <input
+                        type="text"
+                        required
+                        value={emailOtpCode}
+                        onChange={(e) => setEmailOtpCode(e.target.value)}
+                        placeholder="Enter 6-digit code"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all tracking-widest font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading || !emailOtpCode}
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(79,70,229,0.2)] hover:shadow-[0_0_25px_rgba(79,70,229,0.3)] flex items-center justify-center gap-2 mt-4"
+                  >
+                    {isLoading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      'Verify Account'
+                    )}
+                  </button>
+                  
+                  <div className="pt-4 border-t border-slate-100 text-center">
+                     <p className="text-sm text-slate-500 mb-3">Didn't receive the email or want to verify by phone instead?</p>
+                     <button type="button" onClick={switchToPhoneOtp} className="text-indigo-600 font-medium text-sm flex items-center justify-center gap-2 mx-auto hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-lg transition-colors">
+                       <Smartphone className="w-4 h-4" /> Send OTP to Phone
+                     </button>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            ) : (
+              <>
+                <div id="recaptcha-container"></div>
             
             {authMethod === 'phone' ? (
               <AnimatePresence mode="wait">
@@ -265,18 +365,30 @@ export default function AuthScreen() {
                     className="space-y-1"
                   >
                     <label className="text-xs font-medium text-slate-500 ml-1">Phone Number</label>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input
-                        type="tel"
-                        required
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+919876543210"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
-                      />
+                    <div className="flex gap-2">
+                      <select
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="bg-slate-50 border border-slate-200 rounded-xl py-3 px-3 text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all w-[100px] shrink-0 font-medium"
+                      >
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+44">🇬🇧 +44</option>
+                        <option value="+61">🇦🇺 +61</option>
+                        <option value="+91">🇮🇳 +91</option>
+                        <option value="+971">🇦🇪 +971</option>
+                      </select>
+                      <div className="relative flex-1">
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                        <input
+                          type="tel"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="XXXXX XXXXX"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+                        />
+                      </div>
                     </div>
-                    <p className="text-xs text-slate-500 mt-2 ml-1">Include your country code (e.g., +91 for India)</p>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -327,15 +439,28 @@ export default function AuthScreen() {
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-medium text-slate-500 ml-1">Phone Number (Optional)</label>
-                        <div className="relative">
-                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                          <input
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="e.g., +919876543210"
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
-                          />
+                        <div className="flex gap-2">
+                          <select
+                            value={countryCode}
+                            onChange={(e) => setCountryCode(e.target.value)}
+                            className="bg-slate-50 border border-slate-200 rounded-xl py-3 px-3 text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all w-[100px] shrink-0 font-medium"
+                          >
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+61">🇦🇺 +61</option>
+                            <option value="+91">🇮🇳 +91</option>
+                            <option value="+971">🇦🇪 +971</option>
+                          </select>
+                          <div className="relative flex-1">
+                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <input
+                              type="tel"
+                              value={phone}
+                              onChange={(e) => setPhone(e.target.value)}
+                              placeholder="XXXXX XXXXX"
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+                            />
+                          </div>
                         </div>
                       </div>
                     </motion.div>
@@ -400,7 +525,9 @@ export default function AuthScreen() {
                 </AnimatePresence>
               </>
             )}
-
+            </>
+            )}
+            {!(mode === 'signup' && emailOtpSent && authMethod === 'email') && (
             <button
               type="submit"
               disabled={isLoading || (authMethod === 'email' && mode === 'signup' && !allRulesMet)}
@@ -423,6 +550,7 @@ export default function AuthScreen() {
                 </>
               )}
             </button>
+            )}
           </form>
 
           <div className="relative mt-8 mb-6">
