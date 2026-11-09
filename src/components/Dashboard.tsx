@@ -5,7 +5,9 @@ import {
   Wrench, Zap, Sparkles, Plus, Clock, Car, Settings, Scissors, MoreHorizontal,
   Home, Calendar, FileText, User, Users, LogOut, CheckCircle, ChevronRight, ChevronLeft, Loader2, ShoppingCart, ChevronDown, CircleUser,
   AirVent, Package, Siren, MessageSquare, Briefcase, ClipboardList, Smartphone, Headphones, Wallet, Ticket, CreditCard, Info
-, XCircle, Gift, Share2, Copy, TrendingUp, Camera, Shield, Check , Banknote} from 'lucide-react';
+, XCircle, Gift, Share2, Copy, TrendingUp, Camera, Shield, Check , Banknote,
+  Paintbrush, Bug, Hammer, Flower2, Sun, Shirt, ShieldCheck, Flame
+} from 'lucide-react';
 import { services, providers, categorySubServices } from '../data';
 import { Role } from '../types';
 import { auth, db } from '../lib/firebase';
@@ -15,7 +17,8 @@ import Typewriter from './Typewriter';
 import MessagesView from './MessagesView';
 
 const iconMap: Record<string, any> = {
-  Wrench, Zap, Sparkles, Plus, Clock, Car, Settings, Scissors, MoreHorizontal, AirVent, Package, Siren
+  Wrench, Zap, Sparkles, Plus, Clock, Car, Settings, Scissors, MoreHorizontal, AirVent, Package, Siren,
+  Paintbrush, Bug, Hammer, Flower2, Sun, Shirt, ShieldCheck, Shield
 };
 
 import ProfileSubPage from "./ProfileSubPage";
@@ -23,6 +26,7 @@ import SkeletonProviderCard from './SkeletonProviderCard';
 import ProviderCard from './ProviderCard';
 import ProviderDetailsModal from './ProviderDetailsModal';
 import CategoryDetail from './CategoryDetail';
+import AdvancedOffersSlideshow from './AdvancedOffersSlideshow';
 
 const emojiMap: Record<string, string> = {
   Wrench: '🔧',
@@ -34,7 +38,15 @@ const emojiMap: Record<string, string> = {
   MoreHorizontal: '⋯',
   AirVent: '❄️',
   Package: '📦',
-  Siren: '🚨'
+  Siren: '🚨',
+  Paintbrush: '🎨',
+  Bug: '🐜',
+  Hammer: '🔨',
+  Flower2: '🌱',
+  Sun: '☀️',
+  Shirt: '👔',
+  ShieldCheck: '🛡️',
+  Shield: '🔒'
 };
 
 interface DashboardProps {
@@ -159,16 +171,18 @@ export default function Dashboard({ role, onLogout }: DashboardProps) {
               </div>
               <ChevronDown className="w-4 h-4 ml-2 text-slate-500 shrink-0" />
             </motion.button>
+          </div>
+          <div className="flex items-center gap-4">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input 
                 type="text" 
                 placeholder="Search for 'Waxing'" 
-                className="w-[320px] bg-white border border-slate-200 text-sm text-slate-500 rounded-xl px-11 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow shadow-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-[260px] sm:w-[320px] bg-white border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400 rounded-xl px-11 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow shadow-xs"
               />
             </div>
-          </div>
-          <div className="flex items-center gap-6">
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -304,54 +318,8 @@ function MobileNavItem({ icon: Icon, label, active, onClick }: any) {
 }
 
 function UserDashboardView({ activeCategory, setActiveCategory, searchQuery, setSearchQuery, activeProviders, isLoadingProviders }: any) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [hasDragged, setHasDragged] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [showCategoryDetail, setShowCategoryDetail] = useState(true);
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 300; // rough width of a card + gap
-      scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setHasDragged(false);
-    if (scrollContainerRef.current) {
-      setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
-      setScrollLeft(scrollContainerRef.current.scrollLeft);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setTimeout(() => setHasDragged(false), 50);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    if (scrollContainerRef.current) {
-      const x = e.pageX - scrollContainerRef.current.offsetLeft;
-      const walk = (x - startX) * 2; // scroll speed multiplier
-      if (Math.abs(walk) > 5) {
-        setHasDragged(true);
-      }
-      scrollContainerRef.current.scrollLeft = scrollLeft - walk;
-    }
-  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -379,7 +347,15 @@ function UserDashboardView({ activeCategory, setActiveCategory, searchQuery, set
         </motion.div>
       </div>
 
-      {/* Categories Horizontal List */}
+      {/* Advanced Offers Slideshow */}
+      <AdvancedOffersSlideshow 
+        onSelectCategory={(catId) => {
+          setActiveCategory(catId);
+          setShowCategoryDetail(true);
+        }}
+      />
+
+      {/* Categories 4x4 Grid */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -388,38 +364,22 @@ function UserDashboardView({ activeCategory, setActiveCategory, searchQuery, set
         className="space-y-4"
       >
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium text-slate-900">Categories</h3>
-          <div className="flex items-center gap-2 hidden md:flex">
-            <motion.button 
-              whileTap={{ scale: 0.9 }}
-              onClick={() => scroll('left')}
-              className="p-2 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors focus:outline-none"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </motion.button>
-            <motion.button 
-              whileTap={{ scale: 0.9 }}
-              onClick={() => scroll('right')}
-              className="p-2 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors focus:outline-none"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </motion.button>
+          <div>
+            <h3 className="text-xl font-bold text-slate-900 tracking-tight">Categories</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Explore all 16 on-demand services available in your area</p>
           </div>
+          <span className="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full border border-indigo-100">
+            16 Services
+          </span>
         </div>
+
         <motion.div 
-          ref={scrollContainerRef} 
-          onMouseDown={handleMouseDown}
-          onMouseLeave={handleMouseLeave}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          className={`flex gap-4 overflow-x-auto pb-6 hide-scrollbar pt-2 transition-all ${
-            isDragging ? 'cursor-grabbing select-none snap-none' : 'cursor-grab snap-x'
-          }`}
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 pt-2"
           variants={{
             hidden: {},
             show: {
               transition: {
-                staggerChildren: 0.1
+                staggerChildren: 0.04
               }
             }
           }}
@@ -427,59 +387,59 @@ function UserDashboardView({ activeCategory, setActiveCategory, searchQuery, set
           animate="show"
         >
           {services.map((service) => {
-            const Icon = iconMap[service.iconName];
+            const Icon = iconMap[service.iconName] || Settings;
             const isActive = activeCategory === service.id;
             return (
               <motion.button
                 variants={{
-                  hidden: { opacity: 0, y: 20 },
+                  hidden: { opacity: 0, y: 15 },
                   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
                 }}
-                whileHover={{ y: -6 }}
+                whileHover={{ y: -5 }}
                 key={service.id}
-                onClick={(e) => {
-                  if (hasDragged) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
+                onClick={() => {
                   setActiveCategory(service.id);
                   setShowCategoryDetail(true);
                 }}
-                className={`group snap-start relative flex flex-col min-w-[260px] w-[260px] text-left rounded-2xl border transition-all duration-300 overflow-hidden ${
+                className={`group relative flex flex-col w-full text-left rounded-2xl border transition-all duration-300 overflow-hidden ${
                   isActive
-                    ? 'border-indigo-400 bg-indigo-50/20 shadow-[0_8px_30px_rgba(99,102,241,0.2)] ring-1 ring-indigo-400'
-                    : 'border-slate-200 bg-white hover:shadow-md'
+                    ? 'border-indigo-500 bg-indigo-50/20 shadow-[0_8px_30px_rgba(99,102,241,0.2)] ring-2 ring-indigo-500/20'
+                    : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-md'
                 }`}
               >
                 <div className="relative z-10 w-full h-full flex flex-col bg-white rounded-[15px] overflow-hidden">
-                  <div className="h-32 w-full relative overflow-hidden">
+                  <div className="h-28 sm:h-32 w-full relative overflow-hidden bg-slate-100">
                     {service.image ? (
                       <>
-                        <img src={service.image} alt={service.name} className="w-full h-full object-cover transition-transform duration-600 ease-out group-hover:scale-110" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <img 
+                          src={service.image} 
+                          alt={service.name} 
+                          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" 
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent opacity-60 group-hover:opacity-85 transition-opacity duration-300" />
                       </>
                     ) : (
-                      <div className="w-full h-full bg-slate-100 flex items-center justify-center transition-transform duration-600 ease-out group-hover:scale-110 text-slate-300">
-                        <Icon className="w-12 h-12" />
+                      <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
+                        <Icon className="w-10 h-10" />
                       </div>
                     )}
                     
-                    <motion.div 
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      transition={{ type: "spring", delay: 0.2 }}
-                      viewport={{ once: true }}
-                      className={`absolute bottom-3 left-4 p-2 rounded-xl shadow-lg border z-10 flex items-center justify-center w-12 h-12 ${
-                      isActive ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-white border-slate-100 text-indigo-500'
+                    <div className={`absolute bottom-2.5 left-3 p-2 rounded-xl shadow-md border z-10 flex items-center justify-center w-10 h-10 transition-colors ${
+                      isActive ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-white border-slate-100 text-indigo-600 group-hover:bg-indigo-50'
                     }`}>
-                      <Icon className="w-6 h-6" />
-                    </motion.div>
+                      <Icon className="w-5 h-5" />
+                    </div>
                   </div>
                   
-                  <div className="pt-4 pb-5 px-5 bg-white flex-1">
-                    <h4 className="font-bold text-slate-900 text-base mb-1 group-hover:text-indigo-600 transition-colors">{service.name}</h4>
-                    <p className="text-sm text-slate-500 line-clamp-1">{service.subtitle || 'Explore this category'}</p>
+                  <div className="p-3.5 sm:p-4 bg-white flex-1 flex flex-col justify-between">
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-sm mb-0.5 group-hover:text-indigo-600 transition-colors line-clamp-1">{service.name}</h4>
+                      <p className="text-xs text-slate-500 line-clamp-1">{service.subtitle || 'Explore this category'}</p>
+                    </div>
                   </div>
                 </div>
               </motion.button>

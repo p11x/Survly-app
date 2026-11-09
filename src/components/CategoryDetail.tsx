@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Wrench, Zap, Sparkles, Car, Settings, Scissors, AirVent, Package, Siren } from 'lucide-react';
+import { X, Wrench, Zap, Sparkles, Car, Settings, Scissors, AirVent, Package, Siren, Paintbrush, Bug, Hammer, Flower2, Sun, ShieldCheck, Shirt, Shield } from 'lucide-react';
 import { services, categorySubServices } from '../data';
 
 const iconMap: Record<string, any> = {
-  Wrench, Zap, Sparkles, Car, Settings, Scissors, AirVent, Package, Siren
+  Wrench, Zap, Sparkles, Car, Settings, Scissors, AirVent, Package, Siren,
+  Paintbrush, Bug, Hammer, Flower2, Sun, ShieldCheck, Shirt, Shield
 };
 
 
